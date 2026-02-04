@@ -2,29 +2,43 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dev Portfolio</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <nav>
-        <div class="logo" style="font-weight: bold; font-size: 1.2rem;">PORTFOLIO</div>
-        <a href="admin.html" class="login-btn">Admin Login</a>
+        <div class="logo">DEV<span>PORTFOLIO</span></div>
+        <a href="admin.html" class="login-btn">Admin Portal</a>
     </nav>
 
     <div class="hero">
+        <div class="badge">✨ Verified Development Team</div>
+        <h1>Mastering <span>Logic</span></h1>
+        
         <div class="tech-stack">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" alt="JS">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" alt="Java">
         </div>
-        <h1>Developer Profile</h1>
-        <p style="color: var(--text-muted); font-size: 1.2rem;">Multi-language automation and bot specialist.</p>
+
+        <div class="stats-container">
+            <div class="stat-box">
+                <div class="stat-val" id="total-users">--</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-val" id="total-servers">--</div>
+                <div class="stat-label">Total Servers</div>
+            </div>
+        </div>
     </div>
 
     <div class="container">
-        <div id="bot-display" class="grid">
-            </div>
+        <h2 class="section-title">Projects</h2>
+        <div id="bot-display" class="grid"></div>
+
+        <h2 class="section-title" style="margin-top: 60px;">The Team</h2>
+        <div id="team-display" class="grid-team"></div>
     </div>
 
     <script type="module">
@@ -43,18 +57,45 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        onSnapshot(collection(db, "bots"), (snapshot) => {
+        onSnapshot(collection(db, "bots"), (s) => {
             const display = document.getElementById('bot-display');
+            let u = 0, ser = 0;
             display.innerHTML = "";
-            snapshot.forEach((doc) => {
-                const bot = doc.data();
+            s.forEach((d) => {
+                const b = d.data();
+                u += parseInt(b.users || 0);
+                ser += parseInt(b.servers || 0);
+                const statusColor = b.status === "Online" ? "#43b581" : "#faa61a";
                 display.innerHTML += `
                     <div class="bot-card">
-                        <h3>${bot.name}</h3>
-                        <p>${bot.desc}</p>
-                        <a href="${bot.invite}" target="_blank" class="play-btn">Invite Bot</a>
-                    </div>
-                `;
+                        <div class="status-indicator" style="background:${statusColor}"></div>
+                        <div class="bot-tag">@${b.username}</div>
+                        <h3>${b.name}</h3>
+                        <p>${b.desc}</p>
+                        <div class="bot-stats-row">
+                            <span>📊 ${b.servers} Servers</span>
+                            <span>👥 ${b.users} Users</span>
+                        </div>
+                        <a href="${b.invite}" target="_blank" class="play-btn">Invite Now</a>
+                    </div>`;
+            });
+            document.getElementById('total-users').innerText = u.toLocaleString();
+            document.getElementById('total-servers').innerText = ser.toLocaleString();
+        });
+
+        onSnapshot(collection(db, "team"), (s) => {
+            const display = document.getElementById('team-display');
+            display.innerHTML = "";
+            s.forEach((d) => {
+                const t = d.data();
+                display.innerHTML += `
+                    <div class="stat-box team-card">
+                        <img src="${t.avatar || 'https://via.placeholder.com/50'}" class="team-avatar">
+                        <div>
+                            <div style="font-weight: bold;">${t.name}</div>
+                            <div style="font-size: 12px; color: var(--accent);">${t.role}</div>
+                        </div>
+                    </div>`;
             });
         });
     </script>
