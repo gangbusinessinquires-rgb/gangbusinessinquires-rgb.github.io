@@ -6,53 +6,41 @@
     <title>Admin Portal</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .admin-section { background: rgba(255,255,255,0.03); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px; }
-        input, select, textarea { width: 100%; background: #000; color: white; border: 1px solid #333; padding: 12px; border-radius: 10px; margin-bottom: 15px; box-sizing: border-box; }
-        .submit-btn { background: var(--accent); color: white; border: none; padding: 15px; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer; }
-        .manage-card { background: #111; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #222; }
-        .reply-btn { background: #2ecc71; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; margin-right: 10px; }
-        .del-btn { background: #e74c3c; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; }
+        .admin-section { background: rgba(255,255,255,0.03); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 25px; }
+        input, select, textarea { width: 100%; background: #000; color: white; border: 1px solid #333; padding: 12px; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; }
+        .submit-btn { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; width: 100%; cursor: pointer; }
+        .manage-card { background: #111; padding: 12px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #222; font-size: 14px; }
     </style>
 </head>
 <body>
-    <div id="login-section" class="container" style="max-width: 400px; margin-top: 100px; text-align: center;">
+    <div id="login-section" class="container" style="max-width: 400px; margin-top: 50px; text-align: center;">
         <h2>System Login</h2>
-        <input type="email" id="email" placeholder="Admin Email">
+        <input type="email" id="email" placeholder="Email">
         <input type="password" id="password" placeholder="Password">
-        <button onclick="handleLogin()" class="submit-btn">Unlock Dashboard</button>
+        <button onclick="handleLogin()" class="submit-btn">Login</button>
     </div>
 
-    <div id="dashboard" class="container" style="display:none; max-width: 800px; padding-top: 50px;">
-        <h1 style="text-align:center">Control Center</h1>
-
+    <div id="dashboard" class="container" style="display:none; max-width: 800px; padding-top: 30px;">
+        <h1 style="text-align:center">Admin Dashboard</h1>
         <div class="admin-section">
-            <h3>📩 Inquiry Inbox</h3>
+            <h3>📩 Inquiries</h3>
             <div id="inquiry-list"></div>
         </div>
-
         <div class="admin-section">
-            <h3>🚀 Project Editor</h3>
+            <h3>🚀 Add/Edit Bot</h3>
             <input type="hidden" id="edit-bot-id">
-            <input type="text" id="botName" placeholder="Bot Name">
-            <input type="text" id="botUser" placeholder="Bot Username (@...)">
-            <input type="text" id="botAvatar" placeholder="Bot Avatar URL">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <input type="number" id="botServers" placeholder="Servers">
-                <input type="number" id="botUsers" placeholder="Users">
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <select id="botStatus"><option value="Online">Online</option><option value="Maintenance">Maintenance</option></select>
-                <select id="botLanguage"><option value="JavaScript">JavaScript</option><option value="Python">Python</option></select>
-            </div>
-            <textarea id="botDesc" placeholder="Description..."></textarea>
+            <input type="text" id="botName" placeholder="Name">
+            <input type="text" id="botUser" placeholder="Username (@)">
+            <input type="text" id="botAvatar" placeholder="Avatar URL">
+            <input type="number" id="botServers" placeholder="Servers">
+            <input type="number" id="botUsers" placeholder="Users">
+            <select id="botStatus"><option value="Online">Online</option><option value="Maintenance">Maintenance</option></select>
+            <select id="botLanguage"><option value="JavaScript">JavaScript</option><option value="Python">Python</option></select>
+            <textarea id="botDesc" placeholder="Description"></textarea>
             <input type="text" id="botInvite" placeholder="Invite Link">
-            <button onclick="saveBot()" class="submit-btn">Save Project</button>
+            <button onclick="saveBot()" class="submit-btn">Save Bot</button>
         </div>
-
-        <div class="admin-section">
-            <h3>🛠️ Manage Data</h3>
-            <div id="manage-bots"></div>
-        </div>
+        <div id="manage-bots"></div>
     </div>
 
     <script type="module">
@@ -79,12 +67,11 @@
         };
 
         onAuthStateChanged(auth, (u) => { 
-            if (u) { document.getElementById('login-section').style.display = 'none'; document.getElementById('dashboard').style.display = 'block'; loadAdminData(); } 
+            if (u) { document.getElementById('login-section').style.display='none'; document.getElementById('dashboard').style.display='block'; loadAdminData(); } 
         });
 
         window.replyInquiry = (contact, type) => {
-            const subject = encodeURIComponent(`Re: Your ${type} - CartersBot`);
-            window.location.href = `mailto:${contact}?subject=${subject}`;
+            window.location.href = `mailto:${contact}?subject=Reply to ${type}`;
         };
 
         function loadAdminData() {
@@ -94,29 +81,26 @@
                 s.forEach(d => {
                     const i = d.data();
                     list.innerHTML += `<div class="manage-card">
-                        <div style="display:flex; justify-content:space-between"><b>${i.type}</b> <small>${i.timestamp}</small></div>
-                        <div style="margin: 10px 0; color:#ccc">${i.message}</div>
-                        <div style="color:var(--accent); font-size:12px; margin-bottom:10px;">Contact: ${i.contact}</div>
-                        <button class="reply-btn" onclick="replyInquiry('${i.contact}', '${i.type}')">Reply via Email</button>
-                        <button class="del-btn" onclick="deleteItem('inquiries','${d.id}')">Archive</button>
+                        <b>${i.type}</b>: ${i.message}<br>
+                        <button onclick="replyInquiry('${i.contact}', '${i.type}')" style="background:#2ecc71; color:white; border:none; padding:5px; border-radius:5px; margin-top:5px;">Reply</button>
+                        <button onclick="deleteItem('inquiries','${d.id}')" style="background:#e74c3c; color:white; border:none; padding:5px; border-radius:5px;">Delete</button>
                     </div>`;
                 });
             });
 
             onSnapshot(collection(db, "bots"), (s) => {
                 const list = document.getElementById('manage-bots');
-                list.innerHTML = "<h4>Bots</h4>";
+                list.innerHTML = "<h4>Manage Bots</h4>";
                 s.forEach(d => {
                     list.innerHTML += `<div class="manage-card" style="display:flex; justify-content:space-between">
                         <span>${d.data().name}</span>
-                        <button class="del-btn" onclick="deleteItem('bots','${d.id}')">Delete</button>
+                        <button onclick="deleteItem('bots','${d.id}')" style="color:red; background:none; border:none;">X</button>
                     </div>`;
                 });
             });
         }
 
         window.saveBot = async () => {
-            const id = document.getElementById('edit-bot-id').value;
             const data = {
                 name: document.getElementById('botName').value,
                 username: document.getElementById('botUser').value,
@@ -128,11 +112,11 @@
                 desc: document.getElementById('botDesc').value,
                 invite: document.getElementById('botInvite').value
             };
-            id ? await updateDoc(doc(db, "bots", id), data) : await addDoc(collection(db, "bots"), data);
+            await addDoc(collection(db, "bots"), data);
             location.reload();
         };
 
-        window.deleteItem = async (col, id) => { if(confirm("Confirm?")) await deleteDoc(doc(db, col, id)); };
+        window.deleteItem = async (col, id) => { if(confirm("Delete?")) await deleteDoc(doc(db, col, id)); };
     </script>
 </body>
 </html>
