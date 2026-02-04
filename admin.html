@@ -3,198 +3,321 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Console.logic | Administrative Orchestrator</title>
+    <title>Mastering Logic | Admin Terminal</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
     <nav>
-        <div class="nav-inner">
-            <a href="/" class="logo">CONSOLE<span>.LOGIC</span></a>
-            <button onclick="logout()" class="btn-primary" style="width:auto; padding: 10px 20px; font-size: 0.7rem;">TERMINATE SESSION</button>
+        <div class="nav-content">
+            <a href="/" class="logo-main">TERMINAL<span>.LOGIC</span></a>
+            <div id="heuristic-node" class="status-pill">
+                <div class="status-dot"></div>
+                <span id="node-type">ANALYZING_SYSTEM...</span>
+            </div>
         </div>
     </nav>
 
-    <div class="container" style="margin-top: 60px;">
+    <div class="container">
         
-        <header class="hero-header">
-            <h1 class="hero-title">Systems<br><span class="accent-text">Management</span></h1>
-            <p class="hero-subtitle">Initialize new application nodes and synchronize personnel records across the global registry.</p>
-        </header>
-
-        <div id="auth-gate" class="bot-card" style="max-width: 450px; margin: 0 auto; display: block;">
-            <h3 style="text-align:center; margin-top:0;">Access Required</h3>
-            <p style="text-align:center; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 30px;">Authenticate via Firebase Identity to proceed.</p>
-            <input type="email" id="email" class="admin-input" placeholder="Administrator Email">
-            <input type="password" id="password" class="admin-input" placeholder="Security Key">
-            <button id="login-btn" class="btn-primary">Verify Credentials</button>
-            <p id="err-msg" style="color:var(--brand-danger); text-align:center; font-size:0.8rem; margin-top:15px; display:none;"></p>
-        </div>
-
-        <div id="management-hub" style="display: none;">
-            <div class="grid">
+        <section id="auth-gate" class="card-frame" style="max-width:550px; margin: 40px auto; text-align:center;">
+            <h1>LOGIN</h1>
+            <p style="color:var(--txt-muted); margin-bottom:40px;">Please authenticate to access the architectural core.</p>
+            
+            <div style="text-align:left;">
+                <label style="font-size:0.7rem; font-weight:900; color:var(--p-brand);">ADMIN_IDENTIFICATION</label>
+                <input type="email" id="email" class="terminal-input" placeholder="admin@masteringlogic.net">
                 
-                <div class="bot-card">
-                    <h3 style="margin-top:0;">🤖 Project Architect</h3>
-                    <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 20px;">Deploy new automated instances to the project grid.</p>
+                <label style="font-size:0.7rem; font-weight:900; color:var(--p-brand);">SECURITY_KEY</label>
+                <input type="password" id="password" class="terminal-input" placeholder="••••••••••••">
+            </div>
+            
+            <button id="auth-trigger" class="btn-execute">Initialize Session</button>
+            <p id="auth-error" style="color:var(--d-brand); font-size:0.8rem; margin-top:20px; display:none;"></p>
+        </section>
+
+        <main id="admin-hub" style="display:none;">
+            <div class="logic-grid">
+                
+                <div class="card-frame">
+                    <h2>Project Architect</h2>
+                    <p style="font-size:0.85rem; color:var(--txt-muted); margin-bottom:25px;">Deploy and modify primary application nodes.</p>
                     
-                    <label style="font-size:0.7rem; font-weight:800; color:var(--brand-primary); display:block; margin-bottom:8px;">APPLICATION IDENTITY</label>
-                    <input type="text" id="bName" class="admin-input" placeholder="Application Name (e.g., Logic-X)">
+                    <input type="hidden" id="bot-doc-id">
                     
-                    <label style="font-size:0.7rem; font-weight:800; color:var(--brand-primary); display:block; margin-bottom:8px;">TECHNICAL DESCRIPTION</label>
-                    <textarea id="bDesc" class="admin-input" style="height:120px;" placeholder="Outline the primary functions and system architecture..."></textarea>
+                    <input type="text" id="bot-name" class="terminal-input" placeholder="Application Handle">
+                    <textarea id="bot-description" class="terminal-input" style="height:140px; resize:none;" placeholder="System description and functional overview..."></textarea>
                     
-                    <label style="font-size:0.7rem; font-weight:800; color:var(--brand-primary); display:block; margin-bottom:8px;">ASSIGN PERSONNEL (MULTI-SELECT)</label>
-                    <div id="team-selector" class="check-container">
+                    <label style="font-size:0.65rem; color:var(--p-brand); font-weight:900; display:block; margin-bottom:10px;">ENGINEER ASSIGNMENTS</label>
+                    <div id="personnel-checklist" class="terminal-input" style="height:150px; overflow-y:auto; padding:20px;">
                         </div>
 
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-                        <div>
-                            <label style="font-size:0.6rem; color:var(--text-muted);">USER COUNT</label>
-                            <input type="number" id="bUsers" class="admin-input" placeholder="Total">
-                        </div>
-                        <div>
-                            <label style="font-size:0.6rem; color:var(--text-muted);">NODES/SERVERS</label>
-                            <input type="number" id="bServers" class="admin-input" placeholder="Guilds">
-                        </div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                        <input type="number" id="bot-users" class="terminal-input" placeholder="User Scaling">
+                        <input type="number" id="bot-nodes" class="terminal-input" placeholder="Node Count">
                     </div>
 
-                    <label style="font-size:0.7rem; font-weight:800; color:var(--brand-primary); display:block; margin-bottom:8px;">ASSET MAPPING</label>
-                    <input type="text" id="bAvatar" class="admin-input" placeholder="Cover Asset (Direct URL)">
-                    <input type="text" id="bInvite" class="admin-input" placeholder="Integration Oauth2 Link">
-
-                    <button onclick="deployBot()" class="btn-primary">Push to Production</button>
+                    <input type="text" id="bot-avatar-url" class="terminal-input" placeholder="Asset URL (Image)">
+                    <input type="text" id="bot-invite-url" class="terminal-input" placeholder="System Access URL">
+                    
+                    <button id="save-bot-btn" class="btn-execute">Commit Project</button>
                 </div>
 
-                <div class="bot-card">
-                    <h3 style="margin-top:0;">👥 Personnel Sync</h3>
-                    <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 20px;">Register authorized contributors for attribution mapping.</p>
+                <div class="card-frame">
+                    <h2>Identity & Audit</h2>
+                    <p style="font-size:0.85rem; color:var(--txt-muted); margin-bottom:25px;">Manage core engineers and monitor system changes.</p>
                     
-                    <label style="font-size:0.7rem; font-weight:800; color:var(--brand-primary); display:block; margin-bottom:8px;">MEMBER IDENTITY</label>
-                    <input type="text" id="tName" class="admin-input" placeholder="Full Name / Handle">
+                    <input type="hidden" id="staff-doc-id">
+                    <input type="text" id="staff-name" class="terminal-input" placeholder="Personnel Identity">
+                    <input type="text" id="staff-role" class="terminal-input" placeholder="Functional Role (e.g. Lead Engineer)">
+                    <input type="text" id="staff-avatar-url" class="terminal-input" placeholder="Identity Avatar URL">
                     
-                    <label style="font-size:0.7rem; font-weight:800; color:var(--brand-primary); display:block; margin-bottom:8px;">PRIMARY SPECIALIZATION</label>
-                    <input type="text" id="tRole" class="admin-input" placeholder="e.g., Lead Architect / Backend Dev">
-                    
-                    <label style="font-size:0.7rem; font-weight:800; color:var(--brand-primary); display:block; margin-bottom:8px;">AVATAR RESOURCE</label>
-                    <input type="text" id="tAvatar" class="admin-input" placeholder="Profile Image (Direct URL)">
+                    <button id="save-staff-btn" class="btn-execute">Sync Personnel</button>
 
-                    <button onclick="syncTeamMember()" class="btn-primary" style="margin-top: 10px;">Register Contributor</button>
+                    <div class="mt-40">
+                        <h3 style="display:flex; justify-content:space-between; align-items:center;">
+                            Audit Logs
+                            <span style="font-family:'JetBrains Mono'; font-size:0.6rem; color:var(--txt-low);">LIVE_FEED</span>
+                        </h3>
+                        <div id="audit-feed" class="audit-log-box mt-20">
+                            </div>
+                    </div>
+                </div>
 
-                    <hr style="border:0; border-top:1px solid var(--border-subtle); margin: 40px 0;">
-                    
-                    <h4 style="margin-top:0;">Registry Management</h4>
-                    <div id="full-registry" style="margin-top: 20px;">
-                        </div>
+            </div>
+
+            <div class="logic-grid mt-40">
+                <div class="card-frame">
+                    <h3>Project Registry</h3>
+                    <div id="reg-list-bots" class="mt-20"></div>
+                </div>
+                <div class="card-frame">
+                    <h3>Personnel Registry</h3>
+                    <div id="reg-list-staff" class="mt-20"></div>
                 </div>
             </div>
-        </div>
+        </main>
+
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, getDoc, query, orderBy, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBxZOiNLQixhfEK5_U-yf1wDi7f1oyM9NQ",
-            authDomain: "portfolio-a8de0.firebaseapp.com",
-            projectId: "portfolio-a8de0",
-            appId: "1:352813143804:web:9ab1d0f59f38d0b519e979"
+        // Firebase Configuration Node
+        const firebaseConfig = { 
+            apiKey: "AIzaSyBxZOiNLQixhfEK5_U-yf1wDi7f1oyM9NQ", 
+            authDomain: "portfolio-a8de0.firebaseapp.com", 
+            projectId: "portfolio-a8de0", 
+            appId: "1:352813143804:web:9ab1d0f59f38d0b519e979" 
         };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        const logicApp = initializeApp(firebaseConfig);
+        const logicAuth = getAuth(logicApp);
+        const logicDB = getFirestore(logicApp);
 
-        // --- AUTHENTICATION PIPELINE ---
-        document.getElementById('login-btn').addEventListener('click', async () => {
+        /**
+         * System Heuristics: Identify Access Node Type
+         */
+        const detectDevice = () => {
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            const nodeLabel = document.getElementById('node-type');
+            nodeLabel.innerText = isMobile ? "MOBILE_ACCESS_NODE" : "WORKSTATION_NODE";
+            if(isMobile) {
+                document.body.style.fontSize = "14px";
+            }
+        };
+
+        /**
+         * Audit Logging Module
+         */
+        const recordAuditLog = async (action, subject) => {
+            try {
+                await addDoc(collection(logicDB, "logs"), {
+                    timestamp: new Date().toLocaleTimeString(),
+                    action: action,
+                    subject: subject,
+                    created_at: serverTimestamp()
+                });
+            } catch (err) {
+                console.error("Audit Failure:", err);
+            }
+        };
+
+        /**
+         * Firestore Real-time Data Sync
+         */
+        const initializeRealtimeData = () => {
+            // Sync Audit Logs
+            const logQuery = query(collection(logicDB, "logs"), orderBy("created_at", "desc"), limit(20));
+            onSnapshot(logQuery, (snapshot) => {
+                const feed = document.getElementById('audit-feed');
+                feed.innerHTML = "";
+                snapshot.forEach(doc => {
+                    const l = doc.data();
+                    feed.innerHTML += `
+                        <div class="log-entry">
+                            <span class="time">[${l.timestamp}]</span>
+                            <span class="action">${l.action}</span>
+                            <span class="target">${l.subject}</span>
+                        </div>
+                    `;
+                });
+            });
+
+            // Sync Personnel Registry
+            onSnapshot(collection(logicDB, "team"), (snapshot) => {
+                const checkList = document.getElementById('personnel-checklist');
+                const regList = document.getElementById('reg-list-staff');
+                checkList.innerHTML = "";
+                regList.innerHTML = "";
+
+                snapshot.forEach(d => {
+                    const m = d.data();
+                    checkList.innerHTML += `<div style="margin-bottom:8px; display:flex; gap:10px;"><input type="checkbox" name="assignees" value="${d.id}"> ${m.name}</div>`;
+                    regList.innerHTML += `
+                        <div class="registry-item">
+                            <span style="font-weight:700;">${m.name}</span>
+                            <div>
+                                <button class="btn-ctrl edit-btn" onclick="triggerStaffEdit('${d.id}')">EDIT</button>
+                                <button class="btn-ctrl del-btn" onclick="triggerStaffDelete('${d.id}')">X</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+
+            // Sync Project Registry
+            onSnapshot(collection(logicDB, "bots"), (snapshot) => {
+                const regList = document.getElementById('reg-list-bots');
+                regList.innerHTML = "";
+                snapshot.forEach(d => {
+                    const b = d.data();
+                    regList.innerHTML += `
+                        <div class="registry-item">
+                            <span style="font-weight:700;">${b.name}</span>
+                            <div>
+                                <button class="btn-ctrl edit-btn" onclick="triggerBotEdit('${d.id}')">EDIT</button>
+                                <button class="btn-ctrl del-btn" onclick="triggerBotDelete('${d.id}')">X</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        };
+
+        /**
+         * Authentication Pipeline
+         */
+        document.getElementById('auth-trigger').onclick = () => {
             const email = document.getElementById('email').value;
             const pass = document.getElementById('password').value;
-            const err = document.getElementById('err-msg');
-            try {
-                await signInWithEmailAndPassword(auth, email, pass);
-            } catch (e) {
-                err.innerText = "AUTH_ERROR: " + e.message;
-                err.style.display = 'block';
-            }
-        });
+            const errBox = document.getElementById('auth-error');
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
+            signInWithEmailAndPassword(logicAuth, email, pass)
+                .catch(err => {
+                    errBox.innerText = "ACCESS_DENIED: Invalid Credentials";
+                    errBox.style.display = "block";
+                });
+        };
+
+        onAuthStateChanged(logicAuth, user => {
+            if(user) {
                 document.getElementById('auth-gate').style.display = 'none';
-                document.getElementById('management-hub').style.display = 'block';
-            } else {
-                document.getElementById('auth-gate').style.display = 'block';
-                document.getElementById('management-hub').style.display = 'none';
+                document.getElementById('admin-hub').style.display = 'block';
+                initializeRealtimeData();
+                detectDevice();
             }
         });
 
-        window.logout = () => signOut(auth);
-
-        // --- DATA SYNC PIPELINE ---
-        onSnapshot(collection(db, "team"), (snap) => {
-            const selector = document.getElementById('team-selector');
-            const registry = document.getElementById('full-registry');
-            selector.innerHTML = "";
-            registry.innerHTML = "";
-
-            snap.forEach(d => {
-                const data = d.data();
-                // Checkboxes for Bot Creator
-                selector.innerHTML += `
-                    <div class="check-item">
-                        <input type="checkbox" name="assignees" value="${d.id}">
-                        <span>${data.name}</span>
-                    </div>
-                `;
-                // List for Registry management
-                registry.innerHTML += `
-                    <div style="display:flex; justify-content:space-between; align-items:center; background:#111; padding:10px; border-radius:10px; margin-bottom:8px; border: 1px solid var(--border-subtle);">
-                        <span style="font-size:0.8rem;">${data.name}</span>
-                        <button onclick="deleteMember('${d.id}')" style="background:none; border:none; color:var(--brand-danger); cursor:pointer; font-weight:800;">X</button>
-                    </div>
-                `;
-            });
-        });
-
-        window.deployBot = async () => {
-            const checked = Array.from(document.querySelectorAll('input[name="assignees"]:checked')).map(c => c.value);
+        /**
+         * Project CRUD Logic
+         */
+        window.commitBot = async () => {
+            const docId = document.getElementById('bot-doc-id').value;
+            const name = document.getElementById('bot-name').value;
             const payload = {
-                name: document.getElementById('bName').value,
-                desc: document.getElementById('bDesc').value,
-                assignees: checked,
-                users: document.getElementById('bUsers').value,
-                servers: document.getElementById('bServers').value,
-                avatar: document.getElementById('bAvatar').value,
-                invite: document.getElementById('bInvite').value,
-                status: 'online',
-                timestamp: new Date()
+                name: name,
+                desc: document.getElementById('bot-description').value,
+                users: document.getElementById('bot-users').value,
+                servers: document.getElementById('bot-nodes').value,
+                avatar: document.getElementById('bot-avatar-url').value,
+                invite: document.getElementById('bot-invite-url').value,
+                assignees: Array.from(document.querySelectorAll('input[name="assignees"]:checked')).map(c => c.value)
             };
 
-            try {
-                await addDoc(collection(db, "bots"), payload);
-                alert("SYSTEM: Configuration successfully deployed to project grid.");
-                location.reload();
-            } catch (e) { alert("DEPLOY_ERR: " + e.message); }
+            if(docId) {
+                await updateDoc(doc(logicDB, "bots", docId), payload);
+                await recordAuditLog("PROJECT_MODIFIED", name);
+            } else {
+                await addDoc(collection(logicDB, "bots"), payload);
+                await recordAuditLog("PROJECT_DEPLOYED", name);
+            }
+            location.reload();
+        };
+        document.getElementById('save-bot-btn').onclick = window.commitBot;
+
+        window.triggerBotEdit = async (id) => {
+            const snap = await getDoc(doc(logicDB, "bots", id));
+            const b = snap.data();
+            document.getElementById('bot-doc-id').value = id;
+            document.getElementById('bot-name').value = b.name;
+            document.getElementById('bot-description').value = b.desc;
+            document.getElementById('bot-users').value = b.users;
+            document.getElementById('bot-nodes').value = b.servers;
+            document.getElementById('bot-avatar-url').value = b.avatar;
+            document.getElementById('bot-invite-url').value = b.invite;
+            document.querySelectorAll('input[name="assignees"]').forEach(c => c.checked = b.assignees?.includes(c.value));
+            document.getElementById('save-bot-btn').innerText = "Update Application";
         };
 
-        window.syncTeamMember = async () => {
+        window.triggerBotDelete = async (id) => {
+            if(confirm("Confirm deletion of system node?")) {
+                const snap = await getDoc(doc(logicDB, "bots", id));
+                await recordAuditLog("PROJECT_TERMINATED", snap.data().name);
+                await deleteDoc(doc(logicDB, "bots", id));
+            }
+        };
+
+        /**
+         * Personnel CRUD Logic
+         */
+        window.commitStaff = async () => {
+            const docId = document.getElementById('staff-doc-id').value;
+            const name = document.getElementById('staff-name').value;
             const payload = {
-                name: document.getElementById('tName').value,
-                role: document.getElementById('tRole').value,
-                avatar: document.getElementById('tAvatar').value
+                name: name,
+                role: document.getElementById('staff-role').value,
+                avatar: document.getElementById('staff-avatar-url').value
             };
-            try {
-                await addDoc(collection(db, "team"), payload);
-                alert("SYSTEM: Personnel record synchronized.");
-                location.reload();
-            } catch (e) { alert("SYNC_ERR: " + e.message); }
+
+            if(docId) {
+                await updateDoc(doc(logicDB, "team", docId), payload);
+                await recordAuditLog("IDENTITY_SYNCED", name);
+            } else {
+                await addDoc(collection(logicDB, "team"), payload);
+                await recordAuditLog("IDENTITY_CREATED", name);
+            }
+            location.reload();
+        };
+        document.getElementById('save-staff-btn').onclick = window.commitStaff;
+
+        window.triggerStaffEdit = async (id) => {
+            const snap = await getDoc(doc(logicDB, "team", id));
+            const m = snap.data();
+            document.getElementById('staff-doc-id').value = id;
+            document.getElementById('staff-name').value = m.name;
+            document.getElementById('staff-role').value = m.role;
+            document.getElementById('staff-avatar-url').value = m.avatar;
+            document.getElementById('save-staff-btn').innerText = "Update Identity";
         };
 
-        window.deleteMember = async (id) => {
-            if(confirm("Terminate personnel record?")) {
-                await deleteDoc(doc(db, "team", id));
+        window.triggerStaffDelete = async (id) => {
+            if(confirm("Remove personnel from registry?")) {
+                const snap = await getDoc(doc(logicDB, "team", id));
+                await recordAuditLog("IDENTITY_PURGED", snap.data().name);
+                await deleteDoc(doc(logicDB, "team", id));
             }
         };
 
