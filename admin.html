@@ -2,75 +2,44 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Enterprise Console | Logic</title>
+    <title>Architecture Console</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
     <div class="container">
-        <div id="login-gate" class="admin-card" style="max-width: 400px; margin: 100px auto; text-align: center;">
-            <h2 style="margin-bottom: 30px;">System Login</h2>
-            <input type="email" id="email" class="admin-input" placeholder="Admin Email">
+        <div id="login-gate" style="max-width:400px; margin: 100px auto;" class="bot-card">
+            <h2>System Login</h2>
+            <input type="email" id="email" class="admin-input" placeholder="Email">
             <input type="password" id="password" class="admin-input" placeholder="Password">
-            <button id="login-btn" class="primary-btn">Unlock Console</button>
-            <p id="auth-error" style="color: var(--del-red); margin-top: 15px; display: none;"></p>
+            <button id="login-btn" class="primary-btn">Login</button>
         </div>
 
-        <div id="dashboard" style="display: none;">
-            <div class="dashboard-nav">
-                <h1>Console<span>.logic</span></h1>
-                <button onclick="signOutUser()" class="del-btn" style="margin:0; background: rgba(255,71,87,0.1); color: var(--del-red);">Terminate Session</button>
-            </div>
-
-            <div class="grid">
-                <div class="admin-card">
-                    <h3>🤖 Bot Architect</h3>
+        <div id="dashboard" style="display:none;">
+            <div class="grid" style="display:grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <div class="bot-card">
+                    <h3>🤖 Bot Editor</h3>
                     <input type="hidden" id="bot-id">
+                    <input type="text" id="bName" class="admin-input" placeholder="Bot Name">
+                    <textarea id="bDesc" class="admin-input" placeholder="Description"></textarea>
                     
-                    <label class="admin-label">Application Name</label>
-                    <input type="text" id="bName" class="admin-input">
+                    <label style="font-size:0.8rem; color:var(--accent);">ASSIGN CONTRIBUTORS</label>
+                    <div id="assignee-selector" class="assignee-list"></div>
                     
-                    <label class="admin-label">Assigned Contributor</label>
-                    <select id="bAssignee" class="admin-select">
-                        <option value="">Unassigned</option>
-                    </select>
-
-                    <label class="admin-label">User / Server Metrics</label>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="number" id="bUsers" placeholder="Users" class="admin-input">
-                        <input type="number" id="bServers" placeholder="Servers" class="admin-input">
+                    <div style="display:flex; gap:10px; margin-top:15px;">
+                        <input type="number" id="bUsers" class="admin-input" placeholder="Users">
+                        <input type="number" id="bServers" class="admin-input" placeholder="Servers">
                     </div>
-
-                    <label class="admin-label">Invite & Assets</label>
-                    <input type="text" id="bAvatar" placeholder="Image URL" class="admin-input">
-                    <input type="text" id="bInvite" placeholder="Invite Link" class="admin-input">
-                    
-                    <button onclick="saveBot()" class="primary-btn">Publish Configuration</button>
+                    <input type="text" id="bAvatar" class="admin-input" placeholder="Image URL">
+                    <input type="text" id="bInvite" class="admin-input" placeholder="Invite Link">
+                    <button onclick="saveBot()" class="primary-btn">Publish Project</button>
                 </div>
 
-                <div class="admin-card">
-                    <h3>👥 Personnel Sync</h3>
-                    <input type="hidden" id="team-id">
-                    <label class="admin-label">Legal Name / Alias</label>
-                    <input type="text" id="tName" class="admin-input">
-                    <label class="admin-label">Designated Role</label>
-                    <input type="text" id="tRole" class="admin-input">
-                    <label class="admin-label">Avatar Asset URL</label>
-                    <input type="text" id="tAvatar" class="admin-input">
-                    <button onclick="saveMember()" class="primary-btn">Update Personnel</button>
-                </div>
-            </div>
-
-            <div class="admin-card" style="margin-top: 40px;">
-                <h3>🛠️ Data Registry</h3>
-                <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 40px;">
-                    <div>
-                        <h4 style="color: var(--accent);">Active Applications</h4>
-                        <div id="manage-bots"></div>
-                    </div>
-                    <div>
-                        <h4 style="color: var(--accent);">Personnel Registry</h4>
-                        <div id="manage-team"></div>
-                    </div>
+                <div class="bot-card">
+                    <h3>👥 Team Editor</h3>
+                    <input type="text" id="tName" class="admin-input" placeholder="Full Name">
+                    <input type="text" id="tRole" class="admin-input" placeholder="Role">
+                    <input type="text" id="tAvatar" class="admin-input" placeholder="Avatar URL">
+                    <button onclick="saveMember()" class="primary-btn">Save Member</button>
                 </div>
             </div>
         </div>
@@ -78,8 +47,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBxZOiNLQixhfEK5_U-yf1wDi7f1oyM9NQ",
@@ -92,44 +61,33 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- AUTH ---
-        document.getElementById('login-btn').addEventListener('click', async () => {
-            const e = document.getElementById('email').value;
-            const p = document.getElementById('password').value;
-            try { await signInWithEmailAndPassword(auth, e, p); } 
-            catch (err) { alert("Login Failed: " + err.message); }
-        });
+        document.getElementById('login-btn').onclick = () => {
+            signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
+        };
 
         onAuthStateChanged(auth, u => {
-            document.getElementById('login-gate').style.display = u ? 'none' : 'block';
-            document.getElementById('dashboard').style.display = u ? 'block' : 'none';
+            if(u) {
+                document.getElementById('login-gate').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+            }
         });
 
-        window.signOutUser = () => signOut(auth);
-
-        // --- DYNAMIC DROPDOWN & TEAM REGISTRY ---
-        onSnapshot(collection(db, "team"), (s) => {
-            const select = document.getElementById('bAssignee');
-            const list = document.getElementById('manage-team');
-            select.innerHTML = '<option value="">Unassigned</option>';
-            list.innerHTML = "";
+        // Load Team into Checkboxes
+        onSnapshot(collection(db, "team"), s => {
+            const container = document.getElementById('assignee-selector');
+            container.innerHTML = "";
             s.forEach(d => {
-                const data = d.data();
-                // Add to dropdown
-                select.innerHTML += `<option value="${data.name}">${data.name}</option>`;
-                // Add to list
-                list.innerHTML += `<div class="registry-item"><span>${data.name}</span>
-                <div><button class="edit-btn" onclick="editTeam('${d.id}')">Edit</button>
-                <button class="del-btn" onclick="deleteTeam('${d.id}')">Del</button></div></div>`;
+                container.innerHTML += `<div><input type="checkbox" name="devs" value="${d.id}"> ${d.data().name}</div>`;
             });
         });
 
-        // --- BOT LOGIC ---
         window.saveBot = async () => {
             const id = document.getElementById('bot-id').value;
+            const selectedDevs = Array.from(document.querySelectorAll('input[name="devs"]:checked')).map(c => c.value);
             const data = {
                 name: document.getElementById('bName').value,
-                assignee: document.getElementById('bAssignee').value,
+                desc: document.getElementById('bDesc').value,
+                assignees: selectedDevs,
                 users: document.getElementById('bUsers').value,
                 servers: document.getElementById('bServers').value,
                 avatar: document.getElementById('bAvatar').value,
@@ -140,38 +98,13 @@
         };
 
         window.saveMember = async () => {
-            const id = document.getElementById('team-id').value;
-            const data = {
+            await addDoc(collection(db, "team"), {
                 name: document.getElementById('tName').value,
                 role: document.getElementById('tRole').value,
                 avatar: document.getElementById('tAvatar').value
-            };
-            id ? await updateDoc(doc(db, "team", id), data) : await addDoc(collection(db, "team"), data);
+            });
             location.reload();
         };
-
-        onSnapshot(collection(db, "bots"), (s) => {
-            const list = document.getElementById('manage-bots'); list.innerHTML = "";
-            s.forEach(d => {
-                list.innerHTML += `<div class="registry-item"><span>${d.data().name}</span>
-                <div><button class="edit-btn" onclick="editBot('${d.id}')">Edit</button>
-                <button class="del-btn" onclick="deleteBot('${d.id}')">Del</button></div></div>`;
-            });
-        });
-
-        window.editBot = async (id) => {
-            const d = await getDoc(doc(db, "bots", id)); const b = d.data();
-            document.getElementById('bot-id').value = id;
-            document.getElementById('bName').value = b.name;
-            document.getElementById('bAssignee').value = b.assignee || "";
-            document.getElementById('bUsers').value = b.users;
-            document.getElementById('bServers').value = b.servers;
-            document.getElementById('bAvatar').value = b.avatar;
-            document.getElementById('bInvite').value = b.invite;
-        };
-        
-        window.deleteBot = async (id) => { if(confirm("Delete Bot?")) await deleteDoc(doc(db, "bots", id)); };
-        window.deleteTeam = async (id) => { if(confirm("Delete Member?")) await deleteDoc(doc(db, "team", id)); };
     </script>
 </body>
 </html>
