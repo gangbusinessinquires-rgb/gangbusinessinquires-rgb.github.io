@@ -1,55 +1,217 @@
-:root { --accent: #5865F2; --bg: #050505; --card: rgba(255,255,255,0.03); }
-body { background: radial-gradient(circle at top center, #1a1b3a 0%, var(--bg) 75%); color: white; font-family: 'Inter', sans-serif; margin: 0; line-height: 1.6; }
+:root {
+    /* Colors based on your dashboard screenshots */
+    --accent: #5865F2; /* Blurple */
+    --bg-dark: #050505;
+    --card-bg: #0f0f13;
+    --input-bg: #000000;
+    --text-main: #ffffff;
+    --text-muted: #8e9297;
+    --status-online: #43b581;
+    --edit-yellow: #f1c40f;
+    --del-red: #ff4757;
+    --btn-gray: #4e5058;
+}
 
-nav { display: flex; justify-content: space-between; padding: 20px 8%; align-items: center; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 1000; }
-.logo span { color: var(--accent); font-weight: 800; }
-.login-btn { border: 1px solid #333; color: white; padding: 8px 20px; border-radius: 10px; text-decoration: none; font-size: 14px; }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-.hero { text-align: center; padding: 60px 20px; }
-h1 span { background: linear-gradient(to right, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 3rem; }
+body {
+    background: radial-gradient(circle at top center, #1a1b3a 0%, var(--bg-dark) 80%);
+    color: var(--text-main);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100vh;
+    padding-bottom: 50px;
+}
 
-/* Fixed Scaling for 3 Icons */
-.tech-stack { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
-.hero-icon { width: 55px; height: 55px; object-fit: contain; filter: drop-shadow(0 0 10px var(--accent)); transition: 0.3s; }
+/* --- Layout --- */
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
 
-/* Commission Badge */
-.status-badge-container { display: flex; justify-content: center; margin-top: 25px; }
-.comm-pill { padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 14px; border: 1px solid rgba(255,255,255,0.1); }
-.comm-pill.open { background: rgba(67, 181, 129, 0.1); color: #43b581; border-color: #43b581; }
-.comm-pill.closed { background: rgba(255, 71, 87, 0.1); color: #ff4757; border-color: #ff4757; }
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 8%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
 
-.stats-container { display: flex; justify-content: center; gap: 20px; margin-top: 30px; }
-.stat-box { background: var(--card); border: 1px solid rgba(255,255,255,0.1); padding: 20px; border-radius: 20px; min-width: 140px; text-align: center; }
+.logo {
+    font-weight: 800;
+    font-size: 1.5rem;
+}
 
-.container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-.grid, .grid-team { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; padding: 40px 0; }
+.logo span {
+    color: var(--accent);
+}
 
-.bot-card, .team-card { background: var(--card); border: 1px solid rgba(255,255,255,0.1); padding: 25px; border-radius: 24px; position: relative; display: flex; flex-direction: column; gap: 10px; }
+/* --- Admin Sections --- */
+.admin-section {
+    background: var(--card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 30px;
+}
 
-/* Pinned Logic */
-.bot-card.pinned { border: 1px solid var(--accent); background: linear-gradient(145deg, rgba(88, 101, 242, 0.05), var(--card)); }
-.pin-icon { position: absolute; bottom: 15px; right: 25px; font-size: 10px; color: var(--accent); font-weight: 800; }
+h3 {
+    margin-bottom: 20px;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
-/* Contributor Stack Logic */
-.contributor-row { margin-top: 5px; display: flex; align-items: center; }
-.pfp-stack { display: flex; align-items: center; }
-.mini-contributor-pfp { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #0f0f0f; margin-left: -10px; object-fit: cover; background: #000; }
-.mini-contributor-pfp:first-child { margin-left: 0; }
+.admin-input {
+    width: 100%;
+    background: var(--input-bg);
+    border: 1px solid #1e1e1e;
+    border-radius: 12px;
+    color: white;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+}
 
-.bot-header { display: flex; align-items: center; gap: 15px; }
-.bot-pfp { width: 55px; height: 55px; border-radius: 12px; object-fit: cover; }
-.bot-identity h3 { margin: 0; font-size: 1.1rem; }
-.bot-tag { font-size: 11px; color: var(--accent); font-weight: 600; }
-.bot-description { color: #aaa; font-size: 13px; min-height: 40px; }
+.admin-input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
 
-.lang-tag { position: absolute; top: 15px; left: 15px; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: bold; color: #888; display: flex; align-items: center; gap: 5px; }
-.status-indicator { position: absolute; top: 15px; right: 15px; width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 10px currentColor; }
+/* --- Bot & Team Grids --- */
+.grid, .grid-team {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
 
-.bot-stats-row { display: flex; justify-content: space-between; font-size: 12px; color: #777; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px; }
-.play-btn { background: var(--accent); color: white; text-align: center; text-decoration: none; padding: 12px; border-radius: 12px; font-weight: bold; border: none; cursor: pointer; }
+/* --- Cards --- */
+.bot-card, .team-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    padding: 25px;
+    position: relative;
+}
 
-.team-avatar { width: 65px; height: 65px; border-radius: 50%; border: 2px solid var(--accent); object-fit: cover; }
-.member-port-btn { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 8px 15px; border-radius: 8px; font-size: 11px; margin-top: 10px; cursor: pointer; }
+.bot-header, .team-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
 
-.admin-section { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); margin-top: 20px; }
-.admin-section input, .admin-section select, .admin-section textarea { width: 100%; background: #000; color: #fff; border: 1px solid #333; padding: 10px; margin-bottom: 10px; border-radius: 8px; box-sizing: border-box; }
+.bot-pfp, .team-avatar {
+    width: 55px;
+    height: 55px;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+.team-avatar {
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+}
+
+/* --- Buttons --- */
+.play-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    width: 100%;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+}
+
+.member-port-btn {
+    background: white;
+    color: black;
+    padding: 8px 15px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 10px;
+}
+
+/* --- Manage List Item Styles (Matching Image) --- */
+.manage-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0a0a0c;
+    border: 1px solid #1e1e1e;
+    padding: 15px 20px;
+    border-radius: 15px;
+    margin-bottom: 12px;
+}
+
+.manage-btns {
+    display: flex;
+    gap: 10px;
+}
+
+.edit-btn {
+    background: var(--edit-yellow);
+    color: black;
+    padding: 6px 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+}
+
+.del-btn {
+    background: var(--del-red);
+    color: white;
+    padding: 6px 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+}
+
+/* --- Stats & Hero --- */
+.hero {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.stats-container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.stat-box {
+    text-align: center;
+}
+
+.stat-val {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent);
+}
+
+.stat-label {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
