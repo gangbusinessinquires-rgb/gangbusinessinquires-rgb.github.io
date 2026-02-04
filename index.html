@@ -54,18 +54,24 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        let teamAvatars = {};
+
         onSnapshot(collection(db, "team"), (s) => {
             const display = document.getElementById('team-display');
             display.innerHTML = "";
+            teamAvatars = {}; 
+
             s.forEach(d => {
                 const t = d.data();
+                teamAvatars[t.name] = t.avatar; 
+
                 display.innerHTML += `
                     <div class="team-card">
                         <img src="${t.avatar || 'https://via.placeholder.com/60'}" class="team-avatar">
                         <div class="team-info">
                             <h4>${t.name}</h4>
                             <span class="role-badge">${t.role}</span>
-                            <button onclick="alert('Coming Soon!')" class="member-port-btn">View Portfolio</button>
+                            <button onclick="alert('Portfolio coming soon!')" class="member-port-btn">View Portfolio</button>
                         </div>
                     </div>`;
             });
@@ -84,6 +90,16 @@
 
                 bots.forEach((b) => {
                     u += parseInt(b.users || 0); ser += parseInt(b.servers || 0);
+                    
+                    let contributorHtml = "";
+                    if (b.contributors && Array.isArray(b.contributors)) {
+                        b.contributors.forEach(name => {
+                            if (teamAvatars[name]) {
+                                contributorHtml += `<img src="${teamAvatars[name]}" class="mini-contributor-pfp" title="${name}">`;
+                            }
+                        });
+                    }
+
                     const statusColor = b.status === "Online" ? "#43b581" : "#faa61a";
                     const langImg = b.language === "JavaScript" ? 
                         "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" : 
@@ -102,6 +118,11 @@
                                 </div>
                             </div>
                             <p class="bot-description">${b.desc}</p>
+                            
+                            <div class="contributor-row">
+                                <div class="pfp-stack">${contributorHtml}</div>
+                            </div>
+
                             <div class="bot-stats-row"><span>📊 ${b.servers} Servers</span><span>👥 ${b.users} Users</span></div>
                             <a href="${b.invite}" target="_blank" class="play-btn">Join Server</a>
                         </div>`;
@@ -109,11 +130,13 @@
 
                 display.innerHTML += `
                     <div class="bot-card coming-soon-card">
+                        <div class="lang-tag">HTML</div>
                         <div class="coming-soon-content">
                             <div class="icon">🛠️</div>
                             <h3>Coming Soon</h3>
-                            <p>A new <strong>HTML</strong> project is in the works...</p>
+                            <p>An interactive project is in development.</p>
                         </div>
+                        <button class="play-btn" style="opacity: 0.5; cursor: not-allowed;">Join Server</button>
                     </div>`;
 
                 document.getElementById('total-users').innerText = u.toLocaleString();
