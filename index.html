@@ -17,8 +17,8 @@
         <div class="badge">✨ Professional Development</div>
         <h1>Mastering <span>Logic</span></h1>
         <div class="tech-stack">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" alt="JS">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" alt="JS" class="hero-icon">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python" class="hero-icon">
         </div>
         <div class="stats-container">
             <div class="stat-box"><div class="stat-val" id="total-users">0</div><div class="stat-label">Users</div></div>
@@ -40,8 +40,8 @@
                 <option value="General Feedback">General Feedback</option>
                 <option value="Bot Inquiry">Bot Inquiry (Custom Build)</option>
             </select>
-            <input type="text" id="userContact" placeholder="Email (preferred for reply) or Discord Tag">
-            <textarea id="inquiryMsg" placeholder="Describe your request or feedback..."></textarea>
+            <input type="text" id="userContact" placeholder="Email or Discord Tag">
+            <textarea id="inquiryMsg" placeholder="Describe your request..."></textarea>
             <button onclick="sendInquiry()" class="play-btn" style="width:100%">Submit Inquiry</button>
         </div>
     </div>
@@ -67,12 +67,12 @@
             const type = document.getElementById('inquiryType').value;
             const contact = document.getElementById('userContact').value;
             const msg = document.getElementById('inquiryMsg').value;
-            if(!contact || !msg) return alert("Please fill in your contact info and message!");
+            if(!contact || !msg) return alert("Fill in your details!");
 
             await addDoc(collection(db, "inquiries"), {
                 type, contact, message: msg, timestamp: new Date().toLocaleString()
             });
-            alert("Sent! We'll get back to you soon.");
+            alert("Sent!");
             document.getElementById('userContact').value = "";
             document.getElementById('inquiryMsg').value = "";
         };
@@ -80,7 +80,6 @@
         onSnapshot(collection(db, "team"), (s) => {
             const display = document.getElementById('team-display');
             display.innerHTML = "";
-            teamData = {};
             s.forEach(d => {
                 const t = d.data();
                 teamData[d.id] = t;
@@ -108,17 +107,10 @@
                         "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" : 
                         "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg";
 
-                    let avatars = "";
-                    if (b.contributors) {
-                        b.contributors.forEach(mid => {
-                            if (teamData[mid]) avatars += `<img src="${teamData[mid].avatar}" class="mini-avatar" title="${teamData[mid].name}">`;
-                        });
-                    }
-
                     display.innerHTML += `
                         <div class="bot-card">
                             <div class="bot-card-top">
-                                <div class="lang-tag"><img src="${langImg}" width="12"> ${b.language || 'JS'}</div>
+                                <div class="lang-tag"><img src="${langImg}" class="mini-icon"> ${b.language || 'JS'}</div>
                                 <div class="status-pill" style="color: ${b.status === 'Online' ? '#43b581' : '#faa61a'}">
                                     <span class="dot" style="background: currentColor"></span> ${b.status}
                                 </div>
@@ -131,7 +123,6 @@
                                 </div>
                             </div>
                             <p class="bot-description">${b.desc}</p>
-                            <div class="contributor-list">${avatars}</div>
                             <div class="bot-stats-row">
                                 <span>📊 ${b.servers} Servers</span>
                                 <span>👥 ${b.users} Users</span>
