@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Portfolio Admin</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="login-form" class="container" style="margin-top: 50px;">
+        <h2>Developer Login</h2>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="signIn()">Unlock Dashboard</button>
+    </div>
+
+    <div id="admin-panel" class="container" style="display:none;">
+        <h2>Manage My Bots</h2>
+        <div style="background: #2f3136; padding: 20px; border-radius: 8px;">
+            <input type="text" id="botName" placeholder="Bot Name">
+            <textarea id="botDesc" placeholder="Bot Description"></textarea>
+            <input type="text" id="botInvite" placeholder="Invite Link (https://...)">
+            <button onclick="addBot()">Save Bot</button>
+        </div>
+        <div id="bot-list-admin" style="margin-top: 30px;"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBxZOiNLQixhfEK5_U-yf1wDi7f1oyM9NQ",
+            authDomain: "portfolio-a8de0.firebaseapp.com",
+            projectId: "portfolio-a8de0",
+            storageBucket: "portfolio-a8de0.firebasestorage.app",
+            messagingSenderId: "352813143804",
+            appId: "1:352813143804:web:9ab1d0f59f38d0b519e979",
+            measurementId: "G-PG4QH8PRHE"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        window.signIn = async () => {
+            const e = document.getElementById('email').value;
+            const p = document.getElementById('password').value;
+            try {
+                await signInWithEmailAndPassword(auth, e, p);
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'block';
+                loadAdminList();
+            } catch (err) { alert("Error: " + err.message); }
+        };
+
+        function loadAdminList() {
+            onSnapshot(collection(db, "bots"), (snapshot) => {
+                const list = document.getElementById('bot-list-admin');
+                list.innerHTML = "<h3>Live Bot List:</h3>";
+                snapshot.forEach((botDoc) => {
+                    const bot = botDoc.data();
+                    list.innerHTML += `
+                        <div style="background:#202225; padding:15px; margin-bottom:10px; border-radius:5px; display:flex; justify-content:space-between; align-items:center;">
+                            <span><strong>${bot.name}</strong></span>
+                            <button onclick="deleteBot('${botDoc.id}')" style="background:#ED4245; width:auto; padding:5px 15px;">Delete</button>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        window.addBot = async () => {
+            const name = document.getElementById('botName').value;
+            const desc = document.getElementById('botDesc').value;
+            const invite = document.getElementById('botInvite').value;
+            await addDoc(collection(db, "bots"), { name, desc, invite });
+            alert("Bot Saved!");
+        };
+
+        window.deleteBot = async (id) => {
+            if(confirm("Permanently remove this bot?")) await deleteDoc(doc(db, "bots", id));
+        };
+    </script>
+</body>
+</html>
