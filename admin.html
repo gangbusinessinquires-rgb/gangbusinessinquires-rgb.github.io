@@ -2,44 +2,90 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Architecture Console</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Console.logic | Administrative Orchestrator</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <div class="container">
-        <div id="login-gate" style="max-width:400px; margin: 100px auto;" class="bot-card">
-            <h2>System Login</h2>
-            <input type="email" id="email" class="admin-input" placeholder="Email">
-            <input type="password" id="password" class="admin-input" placeholder="Password">
-            <button id="login-btn" class="primary-btn">Login</button>
+
+    <nav>
+        <div class="nav-inner">
+            <a href="/" class="logo">CONSOLE<span>.LOGIC</span></a>
+            <button onclick="logout()" class="btn-primary" style="width:auto; padding: 10px 20px; font-size: 0.7rem;">TERMINATE SESSION</button>
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 60px;">
+        
+        <header class="hero-header">
+            <h1 class="hero-title">Systems<br><span class="accent-text">Management</span></h1>
+            <p class="hero-subtitle">Initialize new application nodes and synchronize personnel records across the global registry.</p>
+        </header>
+
+        <div id="auth-gate" class="bot-card" style="max-width: 450px; margin: 0 auto; display: block;">
+            <h3 style="text-align:center; margin-top:0;">Access Required</h3>
+            <p style="text-align:center; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 30px;">Authenticate via Firebase Identity to proceed.</p>
+            <input type="email" id="email" class="admin-input" placeholder="Administrator Email">
+            <input type="password" id="password" class="admin-input" placeholder="Security Key">
+            <button id="login-btn" class="btn-primary">Verify Credentials</button>
+            <p id="err-msg" style="color:var(--brand-danger); text-align:center; font-size:0.8rem; margin-top:15px; display:none;"></p>
         </div>
 
-        <div id="dashboard" style="display:none;">
-            <div class="grid" style="display:grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+        <div id="management-hub" style="display: none;">
+            <div class="grid">
+                
                 <div class="bot-card">
-                    <h3>🤖 Bot Editor</h3>
-                    <input type="hidden" id="bot-id">
-                    <input type="text" id="bName" class="admin-input" placeholder="Bot Name">
-                    <textarea id="bDesc" class="admin-input" placeholder="Description"></textarea>
+                    <h3 style="margin-top:0;">🤖 Project Architect</h3>
+                    <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 20px;">Deploy new automated instances to the project grid.</p>
                     
-                    <label style="font-size:0.8rem; color:var(--accent);">ASSIGN CONTRIBUTORS</label>
-                    <div id="assignee-selector" class="assignee-list"></div>
+                    <label style="font-size:0.7rem; font-weight:800; color:var(--brand-primary); display:block; margin-bottom:8px;">APPLICATION IDENTITY</label>
+                    <input type="text" id="bName" class="admin-input" placeholder="Application Name (e.g., Logic-X)">
                     
-                    <div style="display:flex; gap:10px; margin-top:15px;">
-                        <input type="number" id="bUsers" class="admin-input" placeholder="Users">
-                        <input type="number" id="bServers" class="admin-input" placeholder="Servers">
+                    <label style="font-size:0.7rem; font-weight:800; color:var(--brand-primary); display:block; margin-bottom:8px;">TECHNICAL DESCRIPTION</label>
+                    <textarea id="bDesc" class="admin-input" style="height:120px;" placeholder="Outline the primary functions and system architecture..."></textarea>
+                    
+                    <label style="font-size:0.7rem; font-weight:800; color:var(--brand-primary); display:block; margin-bottom:8px;">ASSIGN PERSONNEL (MULTI-SELECT)</label>
+                    <div id="team-selector" class="check-container">
+                        </div>
+
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                        <div>
+                            <label style="font-size:0.6rem; color:var(--text-muted);">USER COUNT</label>
+                            <input type="number" id="bUsers" class="admin-input" placeholder="Total">
+                        </div>
+                        <div>
+                            <label style="font-size:0.6rem; color:var(--text-muted);">NODES/SERVERS</label>
+                            <input type="number" id="bServers" class="admin-input" placeholder="Guilds">
+                        </div>
                     </div>
-                    <input type="text" id="bAvatar" class="admin-input" placeholder="Image URL">
-                    <input type="text" id="bInvite" class="admin-input" placeholder="Invite Link">
-                    <button onclick="saveBot()" class="primary-btn">Publish Project</button>
+
+                    <label style="font-size:0.7rem; font-weight:800; color:var(--brand-primary); display:block; margin-bottom:8px;">ASSET MAPPING</label>
+                    <input type="text" id="bAvatar" class="admin-input" placeholder="Cover Asset (Direct URL)">
+                    <input type="text" id="bInvite" class="admin-input" placeholder="Integration Oauth2 Link">
+
+                    <button onclick="deployBot()" class="btn-primary">Push to Production</button>
                 </div>
 
                 <div class="bot-card">
-                    <h3>👥 Team Editor</h3>
-                    <input type="text" id="tName" class="admin-input" placeholder="Full Name">
-                    <input type="text" id="tRole" class="admin-input" placeholder="Role">
-                    <input type="text" id="tAvatar" class="admin-input" placeholder="Avatar URL">
-                    <button onclick="saveMember()" class="primary-btn">Save Member</button>
+                    <h3 style="margin-top:0;">👥 Personnel Sync</h3>
+                    <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 20px;">Register authorized contributors for attribution mapping.</p>
+                    
+                    <label style="font-size:0.7rem; font-weight:800; color:var(--brand-primary); display:block; margin-bottom:8px;">MEMBER IDENTITY</label>
+                    <input type="text" id="tName" class="admin-input" placeholder="Full Name / Handle">
+                    
+                    <label style="font-size:0.7rem; font-weight:800; color:var(--brand-primary); display:block; margin-bottom:8px;">PRIMARY SPECIALIZATION</label>
+                    <input type="text" id="tRole" class="admin-input" placeholder="e.g., Lead Architect / Backend Dev">
+                    
+                    <label style="font-size:0.7rem; font-weight:800; color:var(--brand-primary); display:block; margin-bottom:8px;">AVATAR RESOURCE</label>
+                    <input type="text" id="tAvatar" class="admin-input" placeholder="Profile Image (Direct URL)">
+
+                    <button onclick="syncTeamMember()" class="btn-primary" style="margin-top: 10px;">Register Contributor</button>
+
+                    <hr style="border:0; border-top:1px solid var(--border-subtle); margin: 40px 0;">
+                    
+                    <h4 style="margin-top:0;">Registry Management</h4>
+                    <div id="full-registry" style="margin-top: 20px;">
+                        </div>
                 </div>
             </div>
         </div>
@@ -47,8 +93,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBxZOiNLQixhfEK5_U-yf1wDi7f1oyM9NQ",
@@ -61,50 +107,97 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        document.getElementById('login-btn').onclick = () => {
-            signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
-        };
-
-        onAuthStateChanged(auth, u => {
-            if(u) {
-                document.getElementById('login-gate').style.display = 'none';
-                document.getElementById('dashboard').style.display = 'block';
+        // --- AUTHENTICATION PIPELINE ---
+        document.getElementById('login-btn').addEventListener('click', async () => {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            const err = document.getElementById('err-msg');
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+            } catch (e) {
+                err.innerText = "AUTH_ERROR: " + e.message;
+                err.style.display = 'block';
             }
         });
 
-        // Load Team into Checkboxes
-        onSnapshot(collection(db, "team"), s => {
-            const container = document.getElementById('assignee-selector');
-            container.innerHTML = "";
-            s.forEach(d => {
-                container.innerHTML += `<div><input type="checkbox" name="devs" value="${d.id}"> ${d.data().name}</div>`;
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('auth-gate').style.display = 'none';
+                document.getElementById('management-hub').style.display = 'block';
+            } else {
+                document.getElementById('auth-gate').style.display = 'block';
+                document.getElementById('management-hub').style.display = 'none';
+            }
+        });
+
+        window.logout = () => signOut(auth);
+
+        // --- DATA SYNC PIPELINE ---
+        onSnapshot(collection(db, "team"), (snap) => {
+            const selector = document.getElementById('team-selector');
+            const registry = document.getElementById('full-registry');
+            selector.innerHTML = "";
+            registry.innerHTML = "";
+
+            snap.forEach(d => {
+                const data = d.data();
+                // Checkboxes for Bot Creator
+                selector.innerHTML += `
+                    <div class="check-item">
+                        <input type="checkbox" name="assignees" value="${d.id}">
+                        <span>${data.name}</span>
+                    </div>
+                `;
+                // List for Registry management
+                registry.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:#111; padding:10px; border-radius:10px; margin-bottom:8px; border: 1px solid var(--border-subtle);">
+                        <span style="font-size:0.8rem;">${data.name}</span>
+                        <button onclick="deleteMember('${d.id}')" style="background:none; border:none; color:var(--brand-danger); cursor:pointer; font-weight:800;">X</button>
+                    </div>
+                `;
             });
         });
 
-        window.saveBot = async () => {
-            const id = document.getElementById('bot-id').value;
-            const selectedDevs = Array.from(document.querySelectorAll('input[name="devs"]:checked')).map(c => c.value);
-            const data = {
+        window.deployBot = async () => {
+            const checked = Array.from(document.querySelectorAll('input[name="assignees"]:checked')).map(c => c.value);
+            const payload = {
                 name: document.getElementById('bName').value,
                 desc: document.getElementById('bDesc').value,
-                assignees: selectedDevs,
+                assignees: checked,
                 users: document.getElementById('bUsers').value,
                 servers: document.getElementById('bServers').value,
                 avatar: document.getElementById('bAvatar').value,
-                invite: document.getElementById('bInvite').value
+                invite: document.getElementById('bInvite').value,
+                status: 'online',
+                timestamp: new Date()
             };
-            id ? await updateDoc(doc(db, "bots", id), data) : await addDoc(collection(db, "bots"), data);
-            location.reload();
+
+            try {
+                await addDoc(collection(db, "bots"), payload);
+                alert("SYSTEM: Configuration successfully deployed to project grid.");
+                location.reload();
+            } catch (e) { alert("DEPLOY_ERR: " + e.message); }
         };
 
-        window.saveMember = async () => {
-            await addDoc(collection(db, "team"), {
+        window.syncTeamMember = async () => {
+            const payload = {
                 name: document.getElementById('tName').value,
                 role: document.getElementById('tRole').value,
                 avatar: document.getElementById('tAvatar').value
-            });
-            location.reload();
+            };
+            try {
+                await addDoc(collection(db, "team"), payload);
+                alert("SYSTEM: Personnel record synchronized.");
+                location.reload();
+            } catch (e) { alert("SYNC_ERR: " + e.message); }
         };
+
+        window.deleteMember = async (id) => {
+            if(confirm("Terminate personnel record?")) {
+                await deleteDoc(doc(db, "team", id));
+            }
+        };
+
     </script>
 </body>
 </html>
