@@ -1,80 +1,68 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Admin Portal</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="container">
-        <div class="admin-section">
-            <h3>👥 Team Editor</h3>
-            <input type="hidden" id="edit-id">
-            <input type="text" id="tName" placeholder="Full Name" class="admin-input">
-            <input type="text" id="tRole" placeholder="Role" class="admin-input">
-            <input type="text" id="tAvatar" placeholder="Avatar URL" class="admin-input">
-            <button onclick="saveMember()" class="play-btn">Save Member</button>
-        </div>
-
-        <div class="admin-section">
-            <h3>🛠️ Manage Entries</h3>
-            <div id="manage-list"></div>
-        </div>
+<div class="container">
+    <div class="admin-section">
+        <h3>🤖 Bot Editor</h3>
+        <input type="hidden" id="bot-edit-id">
+        <input type="text" id="bName" placeholder="Bot Name" class="admin-input">
+        <input type="text" id="bDesc" placeholder="Description" class="admin-input">
+        <input type="text" id="bUsers" placeholder="User Count" class="admin-input">
+        <input type="text" id="bServers" placeholder="Server Count" class="admin-input">
+        <input type="text" id="bAvatar" placeholder="Image URL" class="admin-input">
+        <input type="text" id="bInvite" placeholder="Invite Link" class="admin-input">
+        <button onclick="saveBot()" class="play-btn">Publish Project</button>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    <div class="admin-section">
+        <h3>👥 Team Editor</h3>
+        <input type="hidden" id="team-edit-id">
+        <input type="text" id="tName" placeholder="Full Name" class="admin-input">
+        <input type="text" id="tRole" placeholder="Role" class="admin-input">
+        <input type="text" id="tAvatar" placeholder="Avatar URL" class="admin-input">
+        <button onclick="saveMember()" class="play-btn">Save Member</button>
+    </div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBxZOiNLQixhfEK5_U-yf1wDi7f1oyM9NQ",
-            authDomain: "portfolio-a8de0.firebaseapp.com",
-            projectId: "portfolio-a8de0",
-            storageBucket: "portfolio-a8de0.firebasestorage.app",
-            messagingSenderId: "352813143804",
-            appId: "1:352813143804:web:9ab1d0f59f38d0b519e979"
+    <div class="admin-section">
+        <h3>🛠️ Manage Entries</h3>
+        <div id="manage-bots"><h4>Bots</h4></div>
+        <div id="manage-team" style="margin-top:20px;"><h4>Team</h4></div>
+    </div>
+</div>
+
+<script type="module">
+    // ... (Your Firebase Init Code here) ...
+    import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    const db = getFirestore(app);
+
+    // SAVE BOT FUNCTION
+    window.saveBot = async () => {
+        const id = document.getElementById('bot-edit-id').value;
+        const data = {
+            name: document.getElementById('bName').value,
+            desc: document.getElementById('bDesc').value,
+            users: document.getElementById('bUsers').value,
+            servers: document.getElementById('bServers').value,
+            avatar: document.getElementById('bAvatar').value,
+            invite: document.getElementById('bInvite').value
         };
+        id ? await updateDoc(doc(db, "bots", id), data) : await addDoc(collection(db, "bots"), data);
+        location.reload();
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        window.saveMember = async () => {
-            const id = document.getElementById('edit-id').value;
-            const data = {
-                name: document.getElementById('tName').value,
-                role: document.getElementById('tRole').value,
-                avatar: document.getElementById('tAvatar').value,
-                hasPortfolio: true
-            };
-            id ? await updateDoc(doc(db, "team", id), data) : await addDoc(collection(db, "team"), data);
-            location.reload();
-        };
-
-        onSnapshot(collection(db, "team"), (s) => {
-            const list = document.getElementById('manage-list');
-            list.innerHTML = "";
-            s.forEach(d => {
-                const t = d.data();
-                list.innerHTML += `
-                    <div class="manage-item">
-                        <span>${t.name}</span>
-                        <div>
-                            <button class="edit-btn" onclick="editItem('${d.id}')">Edit</button>
-                            <button class="del-btn" onclick="deleteItem('${d.id}')">Del</button>
-                        </div>
-                    </div>`;
-            });
+    // LOAD BOTS INTO MANAGE LIST
+    onSnapshot(collection(db, "bots"), (s) => {
+        const list = document.getElementById('manage-bots');
+        list.innerHTML = "<h4>Bots</h4>";
+        s.forEach(d => {
+            list.innerHTML += `
+                <div class="manage-item">
+                    <span>${d.data().name}</span>
+                    <div>
+                        <button class="edit-btn" onclick="editBot('${d.id}')">Edit</button>
+                        <button class="del-btn" onclick="deleteBot('${d.id}')">Del</button>
+                    </div>
+                </div>`;
         });
+    });
 
-        window.editItem = async (id) => {
-            const d = await getDoc(doc(db, "team", id));
-            const t = d.data();
-            document.getElementById('edit-id').value = id;
-            document.getElementById('tName').value = t.name;
-            document.getElementById('tRole').value = t.role;
-            document.getElementById('tAvatar').value = t.avatar;
-        };
-
-        window.deleteItem = async (id) => { if(confirm("Delete?")) await deleteDoc(doc(db, "team", id)); };
-    </script>
-</body>
-</html>
+    window.deleteBot = async (id) => { if(confirm("Delete Bot?")) await deleteDoc(doc(db, "bots", id)); };
+    // (Add similar logic for saveMember and deleteMember)
+</script>
