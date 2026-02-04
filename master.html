@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Override | Mastering Logic</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { background: #050508; display: flex; align-items: center; justify-content: center; height: 100vh; font-family: 'Inter', sans-serif; color: white; }
+        .auth-card { background: #0d0d12; padding: 40px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 400px; text-align: center; }
+        .master-input { width: 100%; background: #000; border: 1px solid #333; color: #5865F2; padding: 15px; border-radius: 12px; margin: 20px 0; text-align: center; font-size: 1.2rem; }
+        .toggle-container { margin: 30px 0; padding: 20px; background: #000; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .status-badge { padding: 5px 12px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; }
+        #control-panel { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="auth-gate" class="auth-card">
+        <h2 style="color:#5865F2;">SYSTEM_GATE</h2>
+        <input type="password" id="pass-field" class="master-input" placeholder="ENTER_KEY">
+        <button onclick="verifyAccess()" class="primary-btn">VERIFY_IDENTITY</button>
+    </div>
+
+    <div id="control-panel" class="auth-card">
+        <h2>MASTER_CONSOLE</h2>
+        <div class="toggle-container">
+            <span>Maintenance Mode</span>
+            <button id="m-toggle" onclick="toggleMaintenance()" class="mini-btn" style="background:#222; color:white; padding:10px 20px;">LOADING...</button>
+        </div>
+        <p id="status-text" style="font-size:0.8rem; color:#a0a0a0;">Current State: Scanning...</p>
+    </div>
+
+    <script>
+        const SECRET_KEY = "tacosonme";
+
+        function verifyAccess() {
+            if (document.getElementById('pass-field').value === SECRET_KEY) {
+                document.getElementById('auth-gate').style.display = 'none';
+                document.getElementById('control-panel').style.display = 'block';
+                updateUI();
+            } else { alert("ACCESS_DENIED"); }
+        }
+
+        function toggleMaintenance() {
+            const current = localStorage.getItem('MAINTENANCE_MODE') === 'true';
+            localStorage.setItem('MAINTENANCE_MODE', !current);
+            updateUI();
+        }
+
+        function updateUI() {
+            const isActive = localStorage.getItem('MAINTENANCE_MODE') === 'true';
+            const btn = document.getElementById('m-toggle');
+            btn.innerText = isActive ? "ENABLED" : "DISABLED";
+            btn.style.background = isActive ? "#ff4757" : "#4aefaf";
+            document.getElementById('status-text').innerText = isActive ? "Redirecting users to /maintenance" : "Website is Live";
+        }
+    </script>
+</body>
+</html>
