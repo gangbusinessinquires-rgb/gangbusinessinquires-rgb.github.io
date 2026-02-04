@@ -51,7 +51,6 @@
         const db = getFirestore(app);
         let teamData = {};
 
-        // 1. Listen for Team
         onSnapshot(collection(db, "team"), (s) => {
             const display = document.getElementById('team-display');
             display.innerHTML = "";
@@ -73,7 +72,6 @@
             loadBots();
         });
 
-        // 2. Listen for Bots
         function loadBots() {
             onSnapshot(collection(db, "bots"), (s) => {
                 const display = document.getElementById('bot-display');
@@ -85,7 +83,10 @@
                     const b = d.data();
                     u += parseInt(b.users || 0); ser += parseInt(b.servers || 0);
                     const statusColor = b.status === "Online" ? "#43b581" : "#faa61a";
-                    
+                    const langImg = b.language === "JavaScript" ? 
+                        "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" : 
+                        "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg";
+
                     let avatars = "";
                     if (b.contributors) {
                         b.contributors.forEach(mid => {
@@ -100,8 +101,14 @@
                     display.innerHTML += `
                         <div class="bot-card">
                             <div class="status-indicator" style="background:${statusColor}"></div>
-                            <div class="bot-tag">@${b.username}</div>
-                            <h3>${b.name}</h3>
+                            <div class="lang-tag"><img src="${langImg}" width="14"> ${b.language || 'JS'}</div>
+                            <div class="bot-header">
+                                <img src="${b.avatar || 'https://via.placeholder.com/50'}" class="bot-pfp">
+                                <div>
+                                    <div class="bot-tag">@${b.username}</div>
+                                    <h3>${b.name}</h3>
+                                </div>
+                            </div>
                             <p>${b.desc}</p>
                             <div class="contributor-list">${avatars}</div>
                             <div class="bot-stats-row"><span>📊 ${b.servers} Servers</span><span>👥 ${b.users} Users</span></div>
