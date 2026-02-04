@@ -21,9 +21,7 @@
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python" class="hero-icon">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" alt="HTML" class="hero-icon">
         </div>
-        
         <div id="commission-status" class="status-badge-container"></div>
-
         <div class="stats-container">
             <div class="stat-box"><div class="stat-val" id="total-users">0</div><div class="stat-label">Users</div></div>
             <div class="stat-box"><div class="stat-val" id="total-servers">0</div><div class="stat-label">Servers</div></div>
@@ -33,7 +31,6 @@
     <div class="container">
         <h2 class="section-title">Projects</h2>
         <div id="bot-display" class="grid"></div>
-        
         <h2 class="section-title" style="margin-top: 80px;">The Team</h2>
         <div id="team-display" class="grid-team"></div>
     </div>
@@ -53,7 +50,6 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-
         let teamAvatars = {};
 
         onSnapshot(collection(db, "team"), (s) => {
@@ -63,13 +59,14 @@
             s.forEach(d => {
                 const t = d.data();
                 teamAvatars[t.name] = t.avatar; 
+                const staffSlug = t.name.substring(0, 3).toLowerCase();
                 display.innerHTML += `
                     <div class="team-card">
                         <img src="${t.avatar || 'https://via.placeholder.com/60'}" class="team-avatar">
                         <div class="team-info">
                             <h4>${t.name}</h4>
                             <span class="role-badge">${t.role}</span>
-                            <button onclick="alert('Coming Soon!')" class="member-port-btn">View Portfolio</button>
+                            ${t.hasPortfolio ? `<a href="staff.html?user=${staffSlug}" class="member-port-btn">View Portfolio</a>` : ''}
                         </div>
                     </div>`;
             });
@@ -81,32 +78,22 @@
                 const display = document.getElementById('bot-display');
                 let u = 0, ser = 0;
                 display.innerHTML = "";
-                
                 const bots = [];
                 s.forEach(d => bots.push({id: d.id, ...d.data()}));
                 bots.sort((a, b) => (b.pinned === true) - (a.pinned === true));
-
                 bots.forEach((b) => {
                     u += parseInt(b.users || 0); ser += parseInt(b.servers || 0);
                     const statusColor = b.status === "Online" ? "#43b581" : "#faa61a";
-                    const langImg = b.language === "JavaScript" ? 
-                        "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" : 
-                        "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg";
-
                     let contributorHtml = "";
-                    if (b.contributors && Array.isArray(b.contributors)) {
+                    if (b.contributors) {
                         b.contributors.forEach(name => {
-                            if (teamAvatars[name]) {
-                                contributorHtml += `<img src="${teamAvatars[name]}" class="mini-contributor-pfp" title="${name}">`;
-                            }
+                            if (teamAvatars[name]) contributorHtml += `<img src="${teamAvatars[name]}" class="mini-contributor-pfp" title="${name}">`;
                         });
                     }
-
                     display.innerHTML += `
                         <div class="bot-card ${b.pinned ? 'pinned' : ''}">
                             ${b.pinned ? '<div class="pin-icon">📌 Pinned</div>' : ''}
                             <div class="status-indicator" style="background:${statusColor}"></div>
-                            <div class="lang-tag"><img src="${langImg}" width="14"> ${b.language || 'JS'}</div>
                             <div class="bot-header">
                                 <img src="${b.avatar || 'https://via.placeholder.com/50'}" class="bot-pfp">
                                 <div class="bot-identity">
@@ -115,28 +102,13 @@
                                 </div>
                             </div>
                             <p class="bot-description">${b.desc}</p>
-                            
-                            <div class="contributor-row">
-                                <div class="pfp-stack">${contributorHtml}</div>
-                            </div>
-
+                            <div class="pfp-stack">${contributorHtml}</div>
                             <div class="bot-stats-row"><span>📊 ${b.servers} Servers</span><span>👥 ${b.users} Users</span></div>
                             <a href="${b.invite}" target="_blank" class="play-btn">Join Server</a>
                         </div>`;
                 });
-
                 document.getElementById('total-users').innerText = u.toLocaleString();
                 document.getElementById('total-servers').innerText = ser.toLocaleString();
-            });
-
-            onSnapshot(doc(db, "settings", "commissions"), (docSnap) => {
-                const statusDiv = document.getElementById('commission-status');
-                if (docSnap.exists()) {
-                    const isOpen = docSnap.data().open;
-                    statusDiv.innerHTML = `<div class="comm-pill ${isOpen ? 'open' : 'closed'}">
-                        Commissions: ${isOpen ? '🟢 Open' : '🔴 Closed'}
-                    </div>`;
-                }
             });
         }
     </script>
