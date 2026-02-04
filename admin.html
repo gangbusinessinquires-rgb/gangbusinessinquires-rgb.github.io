@@ -1,72 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Portal</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="dashboard" class="container" style="max-width: 800px; padding-bottom: 100px;">
-        <h1 style="text-align: center;">Control Center</h1>
-
-        <div class="admin-section">
-            <h3>🚀 Project Editor</h3>
-            <input type="hidden" id="edit-bot-id">
-            <input type="text" id="botName" placeholder="Bot Display Name" class="admin-input">
-            <input type="text" id="botUser" placeholder="Bot Username (@...)" class="admin-input">
-            <input type="text" id="botAvatar" placeholder="Bot Avatar URL" class="admin-input">
-            
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <input type="number" id="botServers" placeholder="Servers" class="admin-input">
-                <input type="number" id="botUsers" placeholder="Users" class="admin-input">
-            </div>
-
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <select id="botStatus" class="admin-input">
-                    <option value="Online">Online</option>
-                    <option value="Maintenance">Maintenance</option>
-                </select>
-                <select id="botLanguage" class="admin-input">
-                    <option value="JavaScript">JavaScript</option>
-                    <option value="Python">Python</option>
-                </select>
-            </div>
-
-            <label style="color:#888; font-size:12px; margin-bottom: 5px; display: block;">Assign Team Members (Hold Ctrl/Cmd)</label>
-            <select id="teamMemberSelect" multiple class="admin-input" style="height:100px;"></select>
-            
-            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
-                <input type="checkbox" id="botPinned" style="width:auto;"> 
-                <label style="font-size: 14px;">Pin to Top</label>
-            </div>
-
-            <textarea id="botDesc" placeholder="Description..." class="admin-input" style="height: 80px;"></textarea>
-            <input type="text" id="botInvite" placeholder="Invite Link" class="admin-input">
-            
-            <button id="save-bot-btn" onclick="saveBot()" class="play-btn" style="width:100%">Publish Project</button>
-        </div>
-
+    <div class="container">
         <div class="admin-section">
             <h3>👥 Team Editor</h3>
-            <input type="hidden" id="edit-team-id">
+            <input type="hidden" id="edit-id">
             <input type="text" id="tName" placeholder="Full Name" class="admin-input">
             <input type="text" id="tRole" placeholder="Role" class="admin-input">
             <input type="text" id="tAvatar" placeholder="Avatar URL" class="admin-input">
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <button onclick="saveMember()" class="play-btn" style="background:#4e5058">Save Member</button>
-                <button onclick="activatePortfolio()" class="play-btn" style="background:#5865F2">Create Portfolio</button>
-            </div>
+            <button onclick="saveMember()" class="play-btn">Save Member</button>
         </div>
 
         <div class="admin-section">
             <h3>🛠️ Manage Entries</h3>
-            <h4 style="margin-bottom: 10px;">Bots</h4>
-            <div id="manage-bots-list"></div>
-            
-            <h4 style="margin-top: 25px; margin-bottom: 10px;">Team</h4>
-            <div id="manage-team-list"></div>
+            <div id="manage-list"></div>
         </div>
     </div>
 
@@ -74,155 +25,56 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // INSERT YOUR FIREBASE CONFIG HERE
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyBxZOiNLQixhfEK5_U-yf1wDi7f1oyM9NQ",
+            authDomain: "portfolio-a8de0.firebaseapp.com",
+            projectId: "portfolio-a8de0",
+            storageBucket: "portfolio-a8de0.firebasestorage.app",
+            messagingSenderId: "352813143804",
+            appId: "1:352813143804:web:9ab1d0f59f38d0b519e979"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // --- BOT LOGIC ---
-        window.saveBot = async () => {
-            const id = document.getElementById('edit-bot-id').value;
-            const selectedMembers = Array.from(document.getElementById('teamMemberSelect').selectedOptions).map(o => o.value);
-            
-            const data = {
-                name: document.getElementById('botName').value,
-                username: document.getElementById('botUser').value,
-                avatar: document.getElementById('botAvatar').value,
-                servers: document.getElementById('botServers').value,
-                users: document.getElementById('botUsers').value,
-                status: document.getElementById('botStatus').value,
-                language: document.getElementById('botLanguage').value,
-                desc: document.getElementById('botDesc').value,
-                invite: document.getElementById('botInvite').value,
-                pinned: document.getElementById('botPinned').checked,
-                contributors: selectedMembers
-            };
-
-            if (id) {
-                await updateDoc(doc(db, "bots", id), data);
-            } else {
-                await addDoc(collection(db, "bots"), data);
-            }
-            resetBotForm();
-        };
-
-        window.editBot = async (id) => {
-            const d = await getDoc(doc(db, "bots", id));
-            const b = d.data();
-            document.getElementById('edit-bot-id').value = id;
-            document.getElementById('botName').value = b.name || "";
-            document.getElementById('botUser').value = b.username || "";
-            document.getElementById('botAvatar').value = b.avatar || "";
-            document.getElementById('botServers').value = b.servers || 0;
-            document.getElementById('botUsers').value = b.users || 0;
-            document.getElementById('botStatus').value = b.status || "Online";
-            document.getElementById('botLanguage').value = b.language || "JavaScript";
-            document.getElementById('botDesc').value = b.desc || "";
-            document.getElementById('botInvite').value = b.invite || "";
-            document.getElementById('botPinned').checked = b.pinned || false;
-            window.scrollTo(0,0);
-        };
-
-        // --- TEAM LOGIC ---
         window.saveMember = async () => {
-            const id = document.getElementById('edit-team-id').value;
+            const id = document.getElementById('edit-id').value;
             const data = {
                 name: document.getElementById('tName').value,
                 role: document.getElementById('tRole').value,
-                avatar: document.getElementById('tAvatar').value
+                avatar: document.getElementById('tAvatar').value,
+                hasPortfolio: true
             };
-
-            if (id) {
-                await updateDoc(doc(db, "team", id), data);
-            } else {
-                await addDoc(collection(db, "team"), data);
-            }
-            resetTeamForm();
+            id ? await updateDoc(doc(db, "team", id), data) : await addDoc(collection(db, "team"), data);
+            location.reload();
         };
-
-        window.activatePortfolio = async () => {
-            const id = document.getElementById('edit-team-id').value;
-            if(!id) return alert("Select a member from Manage Entries first!");
-            await updateDoc(doc(db, "team", id), { hasPortfolio: true });
-            alert("Portfolio Link Created! Link: domain/" + document.getElementById('tName').value.substring(0,3).toLowerCase());
-        };
-
-        window.editTeam = async (id) => {
-            const d = await getDoc(doc(db, "team", id));
-            const t = d.data();
-            document.getElementById('edit-team-id').value = id;
-            document.getElementById('tName').value = t.name || "";
-            document.getElementById('tRole').value = t.role || "";
-            document.getElementById('tAvatar').value = t.avatar || "";
-            window.scrollTo(0,0);
-        };
-
-        // --- GLOBAL LOGIC ---
-        window.deleteItem = async (col, id) => {
-            if(confirm("Are you sure you want to delete this?")) {
-                await deleteDoc(doc(db, col, id));
-            }
-        };
-
-        function resetBotForm() {
-            document.getElementById('edit-bot-id').value = "";
-            document.querySelectorAll('.admin-section:first-child input, .admin-section:first-child textarea').forEach(i => i.value = "");
-            document.getElementById('botPinned').checked = false;
-        }
-
-        function resetTeamForm() {
-            document.getElementById('edit-team-id').value = "";
-            document.querySelectorAll('.admin-section:nth-child(2) input').forEach(i => i.value = "");
-        }
-
-        // --- REAL-TIME DATA SYNC ---
-        onSnapshot(collection(db, "bots"), (s) => {
-            const list = document.getElementById('manage-bots-list');
-            list.innerHTML = "";
-            s.forEach(d => {
-                const b = d.data();
-                list.innerHTML += `
-                    <div class="manage-item">
-                        <span>${b.name}</span>
-                        <div class="manage-btns">
-                            <button class="edit-btn" onclick="editBot('${d.id}')">Edit</button>
-                            <button class="del-btn" onclick="deleteItem('bots','${d.id}')">Del</button>
-                        </div>
-                    </div>`;
-            });
-        });
 
         onSnapshot(collection(db, "team"), (s) => {
-            const list = document.getElementById('manage-team-list');
-            const select = document.getElementById('teamMemberSelect');
+            const list = document.getElementById('manage-list');
             list.innerHTML = "";
-            select.innerHTML = "";
             s.forEach(d => {
                 const t = d.data();
-                // Update Manage List
                 list.innerHTML += `
                     <div class="manage-item">
                         <span>${t.name}</span>
-                        <div class="manage-btns">
-                            <button class="edit-btn" onclick="editTeam('${d.id}')">Edit</button>
-                            <button class="del-btn" onclick="deleteItem('team','${d.id}')">Del</button>
+                        <div>
+                            <button class="edit-btn" onclick="editItem('${d.id}')">Edit</button>
+                            <button class="del-btn" onclick="deleteItem('${d.id}')">Del</button>
                         </div>
                     </div>`;
-                // Update Multi-Select in Bot Editor
-                const opt = document.createElement('option');
-                opt.value = t.name;
-                opt.text = t.name;
-                select.appendChild(opt);
             });
         });
+
+        window.editItem = async (id) => {
+            const d = await getDoc(doc(db, "team", id));
+            const t = d.data();
+            document.getElementById('edit-id').value = id;
+            document.getElementById('tName').value = t.name;
+            document.getElementById('tRole').value = t.role;
+            document.getElementById('tAvatar').value = t.avatar;
+        };
+
+        window.deleteItem = async (id) => { if(confirm("Delete?")) await deleteDoc(doc(db, "team", id)); };
     </script>
 </body>
 </html>
