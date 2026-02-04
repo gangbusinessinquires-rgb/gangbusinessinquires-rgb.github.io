@@ -9,44 +9,68 @@
     <link rel="stylesheet" href="/style.css">
 
     <style>
-        /* DYNAMIC INTERFACE OVERLAYS
-           This section handles visual layers that are injected via JavaScript 
-           to ensure high-fidelity rendering across different viewport nodes.
-        */
+        /* DYNAMIC INTERFACE OVERLAYS */
         .system-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 9999;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 9999;
             background: radial-gradient(circle at 50% 50%, transparent 0%, rgba(5, 5, 5, 0.2) 100%);
         }
 
         .scanning-line {
-            width: 100%;
-            height: 2px;
+            width: 100%; height: 2px;
             background: linear-gradient(90deg, transparent, var(--p-brand), transparent);
-            position: absolute;
-            top: -2px;
-            animation: scan 8s linear infinite;
-            opacity: 0.1;
+            position: absolute; top: -2px; animation: scan 8s linear infinite; opacity: 0.1;
         }
 
-        @keyframes scan {
-            0% { top: 0%; }
-            100% { top: 100%; }
+        @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
+
+        /* GLOBAL ALERT BANNER */
+        #system-alert-banner {
+            display: none;
+            background: var(--err-brand);
+            color: white;
+            text-align: center;
+            padding: 12px;
+            font-family: 'JetBrains Mono';
+            font-size: 0.8rem;
+            font-weight: 900;
+            position: sticky;
+            top: 0;
+            z-index: 1001;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
-        /* Mobile Heuristic Styling Adjustments */
+        /* LIVE SYSTEM CONSOLE STYLING */
+        #system-console {
+            background: #050508;
+            border: 1px solid var(--brd-subtle);
+            border-radius: 12px;
+            padding: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: #4aefaf;
+            height: 200px;
+            overflow-y: hidden;
+            position: relative;
+            margin-top: 60px;
+        }
+
+        .console-log {
+            margin-bottom: 5px;
+            opacity: 0.8;
+            display: flex;
+            gap: 15px;
+        }
+
+        .log-ts { color: var(--txt-low); }
+        .log-tag { color: var(--p-brand); font-weight: 900; }
+
+        /* Mobile Heuristic Styling */
         .mobile-node .hero-title {
             font-size: 3.2rem !important;
             letter-spacing: -2px !important;
-        }
-
-        .mobile-node .container {
-            padding: 80px 20px !important;
         }
 
         .desktop-node .logic-grid {
@@ -58,17 +82,16 @@
             background-size: 200% 100%;
             animation: loading 1.5s infinite;
             border-radius: 20px;
-            height: 300px;
+            height: 400px;
             margin-bottom: 20px;
         }
 
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
+        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     </style>
 </head>
 <body class="system-base">
+
+    <div id="system-alert-banner">SYSTEM_ALERT: <span id="alert-text">NONE</span></div>
 
     <div class="system-overlay">
         <div class="scanning-line"></div>
@@ -80,19 +103,15 @@
             
             <div class="nav-links pc-only-flex" style="display:flex; gap:35px; font-size:0.75rem; font-weight:900; letter-spacing:1px;">
                 <a href="#projects" class="nav-item">SYSTEMS_REGISTRY</a>
-                <a href="#team" class="nav-item">PERSONNEL_NODES</a>
+                <a href="#console" class="nav-item">LIVE_LOGS</a>
                 <a href="/admin" class="nav-item highlight" style="color:var(--p-brand);">ADMIN_CONSOLE</a>
-            </div>
-
-            <div id="mobile-indicator" style="display:none; font-family:'JetBrains Mono'; font-size:0.6rem; color:var(--p-brand);">
-                MENU // TAP
             </div>
         </div>
     </nav>
 
     <div class="container">
         
-        <header class="hero-section" style="margin-bottom: 160px; position:relative;">
+        <header class="hero-section" style="margin-bottom: 120px; position:relative;">
             <div class="header-metadata">
                 <span id="system-status-tag" class="status-pill">
                     <div class="status-dot"></div>
@@ -105,23 +124,23 @@
 
             <h1 class="hero-title" style="margin-top:30px;">
                 Architecting<br>
-                <span style="color:var(--p-brand);">Digital Logic.</span>
+                <span style="color:var(--p-brand);">Autonomous Logic.</span>
             </h1>
             
             <p class="hero-description" style="color:var(--txt-muted); max-width:700px; font-size:1.2rem; margin-top:35px; line-height:1.8;">
-                We specialize in high-frequency automation and predictive system architecture. 
-                Our team engineers the logical frameworks that drive the next generation of 
-                digital integration and infrastructure management.
+                Deploying high-frequency automation and predictive system architecture. 
+                Focusing on the logical frameworks that drive the next generation of 
+                infrastructure management.
             </p>
 
             <div class="stats-container desktop-row mt-60" style="gap:80px;">
                 <div class="stat-block">
                     <h2 id="agg-users" class="stat-value" style="font-family:'JetBrains Mono'; color:var(--p-brand); margin:0; font-size:3rem;">0</h2>
-                    <p class="stat-label" style="font-size:0.65rem; font-weight:900; color:var(--txt-low); letter-spacing:2px; text-transform:uppercase;">Network_Users</p>
+                    <p class="stat-label" style="font-size:0.65rem; font-weight:900; color:var(--txt-low); letter-spacing:2px; text-transform:uppercase;">Global_Users</p>
                 </div>
                 <div class="stat-block">
                     <h2 id="agg-nodes" class="stat-value" style="font-family:'JetBrains Mono'; color:var(--p-brand); margin:0; font-size:3rem;">0</h2>
-                    <p class="stat-label" style="font-size:0.65rem; font-weight:900; color:var(--txt-low); letter-spacing:2px; text-transform:uppercase;">Active_Nodes</p>
+                    <p class="stat-label" style="font-size:0.65rem; font-weight:900; color:var(--txt-low); letter-spacing:2px; text-transform:uppercase;">Active_Guilds</p>
                 </div>
                 <div class="stat-block mobile-hide">
                     <h2 id="agg-latency" class="stat-value" style="font-family:'JetBrains Mono'; color:var(--s-brand); margin:0; font-size:3rem;">0ms</h2>
@@ -132,7 +151,7 @@
 
         <section id="projects" class="view-section">
             <div class="section-header" style="display:flex; align-items:center; gap:25px; margin-bottom:70px;">
-                <h2 class="section-title" style="margin:0; font-size:2.4rem;">Registry <span style="color:var(--p-brand)">Applications</span></h2>
+                <h2 class="section-title" style="margin:0; font-size:2.4rem;">Deployment <span style="color:var(--p-brand)">Registry</span></h2>
                 <div class="accent-line" style="flex-grow:1; height:1px; background:var(--brd-subtle);"></div>
             </div>
             
@@ -143,152 +162,76 @@
             </div>
         </section>
 
-        <section id="team" class="view-section" style="margin-top:200px;">
-            <div class="section-header" style="display:flex; align-items:center; gap:25px; margin-bottom:70px;">
-                <h2 class="section-title" style="margin:0; font-size:2.4rem;">Core <span style="color:var(--p-brand)">Personnel</span></h2>
+        <section id="console" class="view-section" style="margin-top:100px;">
+            <div class="section-header" style="display:flex; align-items:center; gap:25px; margin-bottom:30px;">
+                <h2 class="section-title" style="margin:0; font-size:1.2rem; color:var(--txt-low);">Kernel_<span style="color:var(--p-brand)">Events</span></h2>
                 <div class="accent-line" style="flex-grow:1; height:1px; background:var(--brd-subtle);"></div>
             </div>
-
-            <div id="staff-mount-point" class="logic-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
-                <div class="skeleton-loader" style="height:200px;"></div>
-                <div class="skeleton-loader" style="height:200px;"></div>
-                <div class="skeleton-loader" style="height:200px;"></div>
-                <div class="skeleton-loader" style="height:200px;"></div>
-            </div>
+            <div id="system-console"></div>
         </section>
 
-        <footer id="master-footer" style="margin-top:220px; padding:100px 0; border-top:1px solid var(--brd-subtle); text-align:center; position:relative;">
+        <footer id="master-footer" style="margin-top:150px; padding:80px 0; border-top:1px solid var(--brd-subtle); text-align:center; position:relative;">
             <div class="footer-logo">
                 <a href="#" class="logo-main" style="justify-content:center; margin-bottom:20px;">MASTERING<span>LOGIC</span></a>
             </div>
             <p class="footer-legal" style="font-family:'JetBrains Mono'; font-size:0.7rem; color:var(--txt-low); letter-spacing:2px; text-transform:uppercase;">
-                Mainframe Architecture v6.0.4 // Synchronized with Global Nodes // © 2026
+                Mainframe Architecture v6.0.4-D // © 2026
             </p>
-            <div class="footer-status mt-20" style="font-size:0.6rem; color:var(--s-brand); font-weight:800;">
-                ALL_SYSTEMS_OPERATIONAL
-            </div>
         </footer>
 
     </div>
 
     <script type="module">
-        /**
-         * FIREBASE MODULE IMPORTATION
-         * Establishing secure socket connection with Mastering Logic Database.
-         */
+        /* --- MASTER OVERRIDE LISTENERS --- */
+        if (localStorage.getItem('MAINTENANCE_MODE') === 'true') { window.location.href = "/redirect.html"; }
+        
+        const activeAlert = localStorage.getItem('SYSTEM_ALERT_TEXT');
+        if (activeAlert) {
+            document.getElementById('system-alert-banner').style.display = 'block';
+            document.getElementById('alert-text').innerText = activeAlert;
+        }
+
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // Configuration Node
-        const logicConfig = { 
-            projectId: "portfolio-a8de0", 
-            appId: "1:352813143804:web:9ab1d0f59f38d0b519e979" 
-        };
-
+        const logicConfig = { projectId: "portfolio-a8de0", appId: "1:352813143804:web:9ab1d0f59f38d0b519e979" };
         const appNode = initializeApp(logicConfig);
         const dbInstance = getFirestore(appNode);
+        const consoleNode = document.getElementById('system-console');
 
-        // Data Management Cache
-        const registryCache = {
-            personnel: {},
-            systems: [],
-            isMobile: false
+        const writeLog = (tag, message) => {
+            const ts = new Date().toLocaleTimeString('en-GB', { hour12: false });
+            const logEntry = document.createElement('div');
+            logEntry.className = 'console-log';
+            logEntry.innerHTML = `<span class="log-ts">[${ts}]</span><span class="log-tag">${tag}</span><span class="log-msg">${message}</span>`;
+            consoleNode.prepend(logEntry);
+            if(consoleNode.childNodes.length > 15) consoleNode.lastChild.remove();
         };
 
-        /**
-         * HEURISTIC: DEVICE SENSING ENGINE
-         * This function determines the hardware node type and adjusts the UI architecture.
-         */
         const runSystemHeuristics = () => {
-            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-            const body = document.body;
-            const deviceTag = document.getElementById('device-info-tag');
-
-            if (/android|iphone|ipad|ipod/i.test(userAgent)) {
-                registryCache.isMobile = true;
-                body.classList.add('mobile-node');
-                deviceTag.innerText = "DEVICE: MOBILE_HANDSET";
-            } else {
-                registryCache.isMobile = false;
-                body.classList.add('desktop-node');
-                deviceTag.innerText = "DEVICE: WORKSTATION_NODE";
-            }
-
-            // Simulated Latency Check
+            writeLog("CORE", "Initializing hardware heuristic scan...");
+            const userAgent = navigator.userAgent;
+            const isMobile = /android|iphone|ipad/i.test(userAgent);
+            document.body.classList.add(isMobile ? 'mobile-node' : 'desktop-node');
+            document.getElementById('device-info-tag').innerText = isMobile ? "DEVICE: MOBILE_HANDSET" : "DEVICE: WORKSTATION_NODE";
+            
             const latencyValue = Math.floor(Math.random() * (45 - 12 + 1) + 12);
             document.getElementById('agg-latency').innerText = `${latencyValue}ms`;
+            writeLog("NETWORK", `Handshake complete. Latency: ${latencyValue}ms`);
         };
 
-        /**
-         * COMPONENT: PERSONNEL RENDERER
-         * Logic for fetching and displaying the staff directory.
-         */
-        const initializePersonnelStream = () => {
-            const mount = document.getElementById('staff-mount-point');
-            
-            onSnapshot(collection(dbInstance, "team"), (snapshot) => {
-                mount.innerHTML = ""; // Clear Skeletons
-                
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const id = doc.id;
-                    
-                    // Populate Cache for relational mapping
-                    registryCache.personnel[id] = data;
-                    
-                    mount.innerHTML += `
-                        <div class="card-frame" style="text-align:center; padding:40px;">
-                            <div class="avatar-container" style="position:relative; width:130px; height:130px; margin: 0 auto 25px;">
-                                <img src="${data.avatar}" style="width:100%; height:100%; border-radius:50%; border:3px solid var(--p-brand); padding:6px; object-fit:cover;">
-                                <div style="position:absolute; bottom:5px; right:5px; width:15px; height:15px; background:var(--s-brand); border:3px solid var(--bg-surface); border-radius:50%;"></div>
-                            </div>
-                            <h3 style="margin:0; font-size:1.3rem;">${data.name}</h3>
-                            <div class="badge-role" style="font-size:0.65rem; background:var(--p-brand); color:white; padding:4px 12px; border-radius:4px; display:inline-block; margin-top:10px; font-weight:900; text-transform:uppercase;">
-                                ${data.role}
-                            </div>
-                            <a href="/staff?id=${id}" class="btn-execute" style="padding:14px; font-size:0.75rem; text-decoration:none; margin-top:35px; display:block; border-radius:12px;">VIEW_NODE_PROFILE</a>
-                        </div>
-                    `;
-                });
-                
-                // Trigger Systems Rendering once Personnel are cached
-                initializeSystemsStream();
-            });
-        };
-
-        /**
-         * COMPONENT: SYSTEMS RENDERER
-         * Logic for fetching and displaying application architectures.
-         */
         const initializeSystemsStream = () => {
             const mount = document.getElementById('bot-mount-point');
-            const userDisplay = document.getElementById('agg-users');
-            const nodeDisplay = document.getElementById('agg-nodes');
+            writeLog("FIREBASE", "Opening secure socket to 'bots' collection...");
 
             onSnapshot(collection(dbInstance, "bots"), (snapshot) => {
                 mount.innerHTML = ""; 
-                let totalUsers = 0;
-                let totalNodes = 0;
+                let u = 0; let n = 0;
+                writeLog("SYNC", `Received payload: ${snapshot.size} system nodes.`);
 
                 snapshot.forEach(doc => {
                     const sys = doc.data();
-                    totalUsers += parseInt(sys.users || 0);
-                    totalNodes += parseInt(sys.servers || 0);
-
-                    // Map Relational Engineers
-                    let engineerStack = "";
-                    if(sys.assignees && Array.isArray(sys.assignees)) {
-                        sys.assignees.forEach(engineerId => {
-                            if(registryCache.personnel[engineerId]) {
-                                engineerStack += `
-                                    <a href="/staff?id=${engineerId}" class="stack-link">
-                                        <img src="${registryCache.personnel[engineerId].avatar}" title="${registryCache.personnel[engineerId].name}">
-                                    </a>`;
-                            }
-                        });
-                    }
-
-                    // Append Architecture Card
+                    u += parseInt(sys.users || 0); n += parseInt(sys.servers || 0);
                     mount.innerHTML += `
                         <article class="card-frame" style="display:flex; flex-direction:column;">
                             <div class="card-header" style="display:flex; justify-content:space-between; margin-bottom:25px; align-items:center;">
@@ -297,50 +240,25 @@
                                 </div>
                                 <span style="font-family:'JetBrains Mono'; font-size:0.8rem; color:var(--txt-low);">U_COUNT: ${parseInt(sys.users || 0).toLocaleString()}</span>
                             </div>
-                            
-                            <img src="${sys.avatar}" class="asset-preview" style="filter: grayscale(0.2) contrast(1.1);">
-                            
-                            <h2 style="margin:0; font-size:1.8rem; letter-spacing:-1px;">${sys.name}</h2>
-                            
-                            <p class="system-description" style="color:var(--txt-muted); font-size:0.95rem; margin-top:20px; line-height:1.7; flex-grow:1;">
-                                ${sys.desc}
-                            </p>
-
-                            <div class="relational-meta" style="margin-top:40px; padding-top:30px; border-top:1px solid var(--brd-subtle); display:flex; align-items:center; gap:20px;">
-                                <div class="relational-stack">${engineerStack}</div>
-                                <div class="stack-label" style="font-size:0.6rem; color:var(--txt-low); font-weight:900; letter-spacing:1px;">ENGINEER_MAPPING</div>
-                            </div>
-
-                            <a href="${sys.invite}" target="_blank" class="btn-execute mt-30" style="text-decoration:none; text-align:center; background:transparent; border:1px solid var(--p-brand); color:var(--p-brand);">
-                                INITIALIZE_INTEGRATION
-                            </a>
-                        </article>
-                    `;
+                            <img src="${sys.avatar}" style="filter: grayscale(0.2) contrast(1.1); margin-bottom:25px; border-radius:15px; width:100%;">
+                            <h2 style="margin:0; font-size:1.8rem;">${sys.name}</h2>
+                            <p style="color:var(--txt-muted); font-size:0.95rem; margin-top:20px; flex-grow:1;">${sys.desc}</p>
+                            <a href="${sys.invite}" target="_blank" class="btn-execute mt-30" style="text-decoration:none; text-align:center; border:1px solid var(--p-brand); color:var(--p-brand); padding:15px; border-radius:10px; font-weight:900; font-size:0.7rem;">INITIALIZE_INTEGRATION</a>
+                        </article>`;
                 });
-
-                // Update Visual Counters
-                userDisplay.innerText = totalUsers.toLocaleString();
-                nodeDisplay.innerText = totalNodes.toLocaleString();
+                document.getElementById('agg-users').innerText = u.toLocaleString();
+                document.getElementById('agg-nodes').innerText = n.toLocaleString();
+                writeLog("AGGREGATE", "Global metrics recalculated.");
             });
         };
 
-        /**
-         * SYSTEM BOOT SEQUENCE
-         * Initializing all logical threads upon DOM load.
-         */
         const bootSequence = () => {
-            console.log("SYSTEM: Initializing boot sequence...");
+            writeLog("BOOT", "System kernel starting...");
             runSystemHeuristics();
-            
-            // Artificial Delay to demonstrate skeleton architecture
-            setTimeout(() => {
-                initializePersonnelStream();
-            }, 800);
+            setTimeout(() => { initializeSystemsStream(); writeLog("BOOT", "All logical threads active."); }, 800);
         };
 
-        // Initialize
         document.addEventListener('DOMContentLoaded', bootSequence);
-
     </script>
 </body>
 </html>
