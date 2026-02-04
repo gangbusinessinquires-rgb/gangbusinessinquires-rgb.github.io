@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dev Portfolio | JS & Python</title>
+    <title>Dev Portfolio | Logic & Web</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
@@ -19,7 +19,11 @@
         <div class="tech-stack">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" alt="JS" class="hero-icon">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python" class="hero-icon">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" alt="HTML" class="hero-icon">
         </div>
+        
+        <div id="commission-status" class="status-badge-container"></div>
+
         <div class="stats-container">
             <div class="stat-box"><div class="stat-val" id="total-users">0</div><div class="stat-label">Users</div></div>
             <div class="stat-box"><div class="stat-val" id="total-servers">0</div><div class="stat-label">Servers</div></div>
@@ -36,7 +40,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBxZOiNLQixhfEK5_U-yf1wDi7f1oyM9NQ",
@@ -49,22 +53,18 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        let teamData = {};
 
         onSnapshot(collection(db, "team"), (s) => {
             const display = document.getElementById('team-display');
             display.innerHTML = "";
-            teamData = {};
             s.forEach(d => {
                 const t = d.data();
-                teamData[d.id] = t;
                 display.innerHTML += `
                     <div class="team-card">
                         <img src="${t.avatar || 'https://via.placeholder.com/60'}" class="team-avatar">
                         <div class="team-info">
                             <h4>${t.name}</h4>
                             <span class="role-badge">${t.role}</span>
-                            <div class="contributions" id="contributions-${d.id}"></div>
                             <button onclick="alert('Coming Soon!')" class="member-port-btn">View Portfolio</button>
                         </div>
                     </div>`;
@@ -77,29 +77,21 @@
                 const display = document.getElementById('bot-display');
                 let u = 0, ser = 0;
                 display.innerHTML = "";
-                document.querySelectorAll('.contributions').forEach(el => el.innerHTML = "");
+                
+                const bots = [];
+                s.forEach(d => bots.push({id: d.id, ...d.data()}));
+                bots.sort((a, b) => (b.pinned === true) - (a.pinned === true));
 
-                s.forEach((d) => {
-                    const b = d.data();
+                bots.forEach((b) => {
                     u += parseInt(b.users || 0); ser += parseInt(b.servers || 0);
                     const statusColor = b.status === "Online" ? "#43b581" : "#faa61a";
                     const langImg = b.language === "JavaScript" ? 
                         "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" : 
                         "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg";
 
-                    let avatars = "";
-                    if (b.contributors) {
-                        b.contributors.forEach(mid => {
-                            if (teamData[mid]) {
-                                avatars += `<img src="${teamData[mid].avatar}" class="mini-avatar" title="${teamData[mid].name}">`;
-                                const contEl = document.getElementById(`contributions-${mid}`);
-                                if (contEl) contEl.innerHTML += `<span class="proj-tag">${b.name}</span>`;
-                            }
-                        });
-                    }
-
                     display.innerHTML += `
-                        <div class="bot-card">
+                        <div class="bot-card ${b.pinned ? 'pinned' : ''}">
+                            ${b.pinned ? '<div class="pin-icon">📌 Pinned</div>' : ''}
                             <div class="status-indicator" style="background:${statusColor}"></div>
                             <div class="lang-tag"><img src="${langImg}" width="14"> ${b.language || 'JS'}</div>
                             <div class="bot-header">
@@ -110,24 +102,32 @@
                                 </div>
                             </div>
                             <p class="bot-description">${b.desc}</p>
-                            <div class="contributor-list">${avatars}</div>
                             <div class="bot-stats-row"><span>📊 ${b.servers} Servers</span><span>👥 ${b.users} Users</span></div>
                             <a href="${b.invite}" target="_blank" class="play-btn">Join Server</a>
                         </div>`;
                 });
 
-                // Add Coming Soon Card
                 display.innerHTML += `
                     <div class="bot-card coming-soon-card">
                         <div class="coming-soon-content">
                             <div class="icon">🛠️</div>
-                            <h3>Project Coming Soon</h3>
-                            <p>Something big is in the works...</p>
+                            <h3>Coming Soon</h3>
+                            <p>A new <strong>HTML</strong> project is in the works...</p>
                         </div>
                     </div>`;
 
                 document.getElementById('total-users').innerText = u.toLocaleString();
                 document.getElementById('total-servers').innerText = ser.toLocaleString();
+            });
+
+            onSnapshot(doc(db, "settings", "commissions"), (docSnap) => {
+                const statusDiv = document.getElementById('commission-status');
+                if (docSnap.exists()) {
+                    const isOpen = docSnap.data().open;
+                    statusDiv.innerHTML = `<div class="comm-pill ${isOpen ? 'open' : 'closed'}">
+                        Commissions: ${isOpen ? '🟢 Open' : '🔴 Closed'}
+                    </div>`;
+                }
             });
         }
     </script>
