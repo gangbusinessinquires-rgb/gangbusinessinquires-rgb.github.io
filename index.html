@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dev Portfolio</title>
+    <title>Dev Portfolio | JS & Python</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <nav>
@@ -23,11 +24,11 @@
 
         <div class="stats-container">
             <div class="stat-box">
-                <div class="stat-val" id="total-users">--</div>
+                <div class="stat-val" id="total-users">0</div>
                 <div class="stat-label">Global Users</div>
             </div>
             <div class="stat-box">
-                <div class="stat-val" id="total-servers">--</div>
+                <div class="stat-val" id="total-servers">0</div>
                 <div class="stat-label">Global Servers</div>
             </div>
         </div>
@@ -37,7 +38,7 @@
         <h2 class="section-title">Projects</h2>
         <div id="bot-display" class="grid"></div>
 
-        <h2 class="section-title" style="margin-top: 60px;">The Team</h2>
+        <h2 class="section-title" style="margin-top: 80px;">Meet the Team</h2>
         <div id="team-display" class="grid-team"></div>
     </div>
 
@@ -57,14 +58,14 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // Bots Listener
         onSnapshot(collection(db, "bots"), (s) => {
             const display = document.getElementById('bot-display');
             let u = 0, ser = 0;
             display.innerHTML = "";
             s.forEach((d) => {
                 const b = d.data();
-                u += parseInt(b.users || 0);
-                ser += parseInt(b.servers || 0);
+                u += parseInt(b.users || 0); ser += parseInt(b.servers || 0);
                 const statusColor = b.status === "Online" ? "#43b581" : "#faa61a";
                 display.innerHTML += `
                     <div class="bot-card">
@@ -72,10 +73,7 @@
                         <div class="bot-tag">@${b.username}</div>
                         <h3>${b.name}</h3>
                         <p>${b.desc}</p>
-                        <div class="bot-stats-row">
-                            <span>📊 ${b.servers} Servers</span>
-                            <span>👥 ${b.users} Users</span>
-                        </div>
+                        <div class="bot-stats-row"><span>📊 ${b.servers} Servers</span><span>👥 ${b.users} Users</span></div>
                         <a href="${b.invite}" target="_blank" class="play-btn">Invite Now</a>
                     </div>`;
             });
@@ -83,17 +81,18 @@
             document.getElementById('total-servers').innerText = ser.toLocaleString();
         });
 
+        // Team Listener
         onSnapshot(collection(db, "team"), (s) => {
             const display = document.getElementById('team-display');
             display.innerHTML = "";
             s.forEach((d) => {
                 const t = d.data();
                 display.innerHTML += `
-                    <div class="stat-box team-card">
-                        <img src="${t.avatar || 'https://via.placeholder.com/50'}" class="team-avatar">
-                        <div>
-                            <div style="font-weight: bold;">${t.name}</div>
-                            <div style="font-size: 12px; color: var(--accent);">${t.role}</div>
+                    <div class="team-card">
+                        <img src="${t.avatar || 'https://via.placeholder.com/60'}" class="team-avatar">
+                        <div class="team-info">
+                            <h4>${t.name}</h4>
+                            <span class="role-badge">${t.role}</span>
                         </div>
                     </div>`;
             });
@@ -101,3 +100,5 @@
     </script>
 </body>
 </html>
+
+
