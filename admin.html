@@ -1,68 +1,173 @@
-<div class="container">
-    <div class="admin-section">
-        <h3>🤖 Bot Editor</h3>
-        <input type="hidden" id="bot-edit-id">
-        <input type="text" id="bName" placeholder="Bot Name" class="admin-input">
-        <input type="text" id="bDesc" placeholder="Description" class="admin-input">
-        <input type="text" id="bUsers" placeholder="User Count" class="admin-input">
-        <input type="text" id="bServers" placeholder="Server Count" class="admin-input">
-        <input type="text" id="bAvatar" placeholder="Image URL" class="admin-input">
-        <input type="text" id="bInvite" placeholder="Invite Link" class="admin-input">
-        <button onclick="saveBot()" class="play-btn">Publish Project</button>
-    </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Management Console | Logic & Web</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container">
+        <div id="login-gate" class="admin-card" style="max-width: 450px; margin: 80px auto;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h2 style="letter-spacing: -1px;">System Login</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Authorized Personnel Only</p>
+            </div>
+            <input type="email" id="email" class="admin-input" placeholder="Administrator Email">
+            <input type="password" id="password" class="admin-input" placeholder="Security Password">
+            <button id="login-btn" class="primary-btn">Authenticate Session</button>
+            <p id="auth-error" style="color: var(--del-red); text-align: center; margin-top: 15px; font-size: 0.85rem; display: none;"></p>
+        </div>
 
-    <div class="admin-section">
-        <h3>👥 Team Editor</h3>
-        <input type="hidden" id="team-edit-id">
-        <input type="text" id="tName" placeholder="Full Name" class="admin-input">
-        <input type="text" id="tRole" placeholder="Role" class="admin-input">
-        <input type="text" id="tAvatar" placeholder="Avatar URL" class="admin-input">
-        <button onclick="saveMember()" class="play-btn">Save Member</button>
-    </div>
+        <div id="dashboard" style="display: none;">
+            <nav style="background: none; border: none; padding: 0; margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center;">
+                <h1>Console<span>.logic</span></h1>
+                <button onclick="signOutUser()" class="del-btn" style="margin: 0;">Terminate Session</button>
+            </nav>
 
-    <div class="admin-section">
-        <h3>🛠️ Manage Entries</h3>
-        <div id="manage-bots"><h4>Bots</h4></div>
-        <div id="manage-team" style="margin-top:20px;"><h4>Team</h4></div>
-    </div>
-</div>
+            <div class="grid">
+                <div class="admin-card">
+                    <h3>🤖 Bot Architect</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 20px;">Deploy new application instances to the public registry.</p>
+                    <input type="hidden" id="bot-id">
+                    <input type="text" id="bName" placeholder="Bot Name" class="admin-input">
+                    <input type="text" id="bDesc" placeholder="Brief Description" class="admin-input">
+                    <input type="number" id="bUsers" placeholder="User Count" class="admin-input">
+                    <input type="number" id="bServers" placeholder="Server Count" class="admin-input">
+                    <input type="text" id="bAvatar" placeholder="Asset Image URL" class="admin-input">
+                    <input type="text" id="bInvite" placeholder="Oauth2 Link" class="admin-input">
+                    <button onclick="saveBot()" class="primary-btn">Publish Configuration</button>
+                </div>
 
-<script type="module">
-    // ... (Your Firebase Init Code here) ...
-    import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-    const db = getFirestore(app);
+                <div class="admin-card">
+                    <h3>👥 Personnel Sync</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 20px;">Manage contributor profiles and organizational roles.</p>
+                    <input type="hidden" id="team-id">
+                    <input type="text" id="tName" placeholder="Full Name / Alias" class="admin-input">
+                    <input type="text" id="tRole" placeholder="Designated Role" class="admin-input">
+                    <input type="text" id="tAvatar" placeholder="Profile Image URL" class="admin-input">
+                    <button onclick="saveMember()" class="primary-btn">Update Personnel</button>
+                </div>
+            </div>
 
-    // SAVE BOT FUNCTION
-    window.saveBot = async () => {
-        const id = document.getElementById('bot-edit-id').value;
-        const data = {
-            name: document.getElementById('bName').value,
-            desc: document.getElementById('bDesc').value,
-            users: document.getElementById('bUsers').value,
-            servers: document.getElementById('bServers').value,
-            avatar: document.getElementById('bAvatar').value,
-            invite: document.getElementById('bInvite').value
-        };
-        id ? await updateDoc(doc(db, "bots", id), data) : await addDoc(collection(db, "bots"), data);
-        location.reload();
-    };
-
-    // LOAD BOTS INTO MANAGE LIST
-    onSnapshot(collection(db, "bots"), (s) => {
-        const list = document.getElementById('manage-bots');
-        list.innerHTML = "<h4>Bots</h4>";
-        s.forEach(d => {
-            list.innerHTML += `
-                <div class="manage-item">
-                    <span>${d.data().name}</span>
+            <div class="admin-card" style="margin-top: 40px;">
+                <h3>🛠️ Data Registry</h3>
+                <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 40px;">
                     <div>
-                        <button class="edit-btn" onclick="editBot('${d.id}')">Edit</button>
-                        <button class="del-btn" onclick="deleteBot('${d.id}')">Del</button>
+                        <h4 style="color: var(--accent); margin-bottom: 15px;">Active Bots</h4>
+                        <div id="manage-bots"></div>
                     </div>
-                </div>`;
-        });
-    });
+                    <div>
+                        <h4 style="color: var(--accent); margin-bottom: 15px;">Personnel</h4>
+                        <div id="manage-team"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    window.deleteBot = async (id) => { if(confirm("Delete Bot?")) await deleteDoc(doc(db, "bots", id)); };
-    // (Add similar logic for saveMember and deleteMember)
-</script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBxZOiNLQixhfEK5_U-yf1wDi7f1oyM9NQ",
+            authDomain: "portfolio-a8de0.firebaseapp.com",
+            projectId: "portfolio-a8de0",
+            storageBucket: "portfolio-a8de0.firebasestorage.app",
+            messagingSenderId: "352813143804",
+            appId: "1:352813143804:web:9ab1d0f59f38d0b519e979"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- AUTHENTICATION LOGIC ---
+        document.getElementById('login-btn').addEventListener('click', async () => {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+            } catch (err) {
+                const errEl = document.getElementById('auth-error');
+                errEl.innerText = "Authentication Failed: " + err.message;
+                errEl.style.display = 'block';
+            }
+        });
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('login-gate').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+            } else {
+                document.getElementById('login-gate').style.display = 'block';
+                document.getElementById('dashboard').style.display = 'none';
+            }
+        });
+
+        window.signOutUser = () => signOut(auth);
+
+        // --- DATA LOGIC ---
+        window.saveBot = async () => {
+            const id = document.getElementById('bot-id').value;
+            const data = {
+                name: document.getElementById('bName').value,
+                desc: document.getElementById('bDesc').value,
+                users: document.getElementById('bUsers').value,
+                servers: document.getElementById('bServers').value,
+                avatar: document.getElementById('bAvatar').value,
+                invite: document.getElementById('bInvite').value
+            };
+            id ? await updateDoc(doc(db, "bots", id), data) : await addDoc(collection(db, "bots"), data);
+            location.reload();
+        };
+
+        window.saveMember = async () => {
+            const id = document.getElementById('team-id').value;
+            const data = {
+                name: document.getElementById('tName').value,
+                role: document.getElementById('tRole').value,
+                avatar: document.getElementById('tAvatar').value
+            };
+            id ? await updateDoc(doc(db, "team", id), data) : await addDoc(collection(db, "team"), data);
+            location.reload();
+        };
+
+        // --- REGISTRY SYNC ---
+        onSnapshot(collection(db, "bots"), (s) => {
+            const list = document.getElementById('manage-bots'); list.innerHTML = "";
+            s.forEach(d => {
+                list.innerHTML += `<div class="manage-item"><span>${d.data().name}</span>
+                <div><button class="edit-btn" onclick="editBot('${d.id}')">Edit</button>
+                <button class="del-btn" onclick="deleteBot('${d.id}')">Del</button></div></div>`;
+            });
+        });
+
+        onSnapshot(collection(db, "team"), (s) => {
+            const list = document.getElementById('manage-team'); list.innerHTML = "";
+            s.forEach(d => {
+                list.innerHTML += `<div class="manage-item"><span>${d.data().name}</span>
+                <div><button class="edit-btn" onclick="editTeam('${d.id}')">Edit</button>
+                <button class="del-btn" onclick="deleteTeam('${d.id}')">Del</button></div></div>`;
+            });
+        });
+
+        // Edit Helpers
+        window.editBot = async (id) => {
+            const d = await getDoc(doc(db, "bots", id)); const b = d.data();
+            document.getElementById('bot-id').value = id;
+            document.getElementById('bName').value = b.name;
+            document.getElementById('bDesc').value = b.desc;
+            document.getElementById('bUsers').value = b.users;
+            document.getElementById('bServers').value = b.servers;
+            document.getElementById('bAvatar').value = b.avatar;
+            document.getElementById('bInvite').value = b.invite;
+        };
+
+        window.deleteBot = async (id) => { if(confirm("Remove application?")) await deleteDoc(doc(db, "bots", id)); };
+        window.deleteTeam = async (id) => { if(confirm("Remove personnel?")) await deleteDoc(doc(db, "team", id)); };
+    </script>
+</body>
+</html>
