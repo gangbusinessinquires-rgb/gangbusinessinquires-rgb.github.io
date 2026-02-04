@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dev Portfolio | Projects & Inquiries</title>
+    <title>Dev Portfolio | Projects</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
@@ -35,13 +35,13 @@
 
         <h2 class="section-title" style="margin-top: 80px;">Inquiries</h2>
         <div class="inquiry-card">
-            <p style="color: #888; margin-bottom: 20px;">Need a custom bot or have feedback? Send us a message.</p>
+            <p style="color: #888; margin-bottom: 20px;">Need a custom bot or have feedback? Let us know.</p>
             <select id="inquiryType">
                 <option value="General Feedback">General Feedback</option>
-                <option value="Bot Inquiry">Bot Inquiry (Custom Build)</option>
+                <option value="Bot Inquiry">Bot Inquiry</option>
             </select>
             <input type="text" id="userContact" placeholder="Email or Discord Tag">
-            <textarea id="inquiryMsg" placeholder="Describe your request..."></textarea>
+            <textarea id="inquiryMsg" placeholder="Your message..."></textarea>
             <button onclick="sendInquiry()" class="play-btn" style="width:100%">Submit Inquiry</button>
         </div>
     </div>
@@ -67,14 +67,10 @@
             const type = document.getElementById('inquiryType').value;
             const contact = document.getElementById('userContact').value;
             const msg = document.getElementById('inquiryMsg').value;
-            if(!contact || !msg) return alert("Fill in your details!");
-
-            await addDoc(collection(db, "inquiries"), {
-                type, contact, message: msg, timestamp: new Date().toLocaleString()
-            });
+            if(!contact || !msg) return alert("Fill in details!");
+            await addDoc(collection(db, "inquiries"), { type, contact, message: msg, timestamp: new Date().toLocaleString() });
             alert("Sent!");
-            document.getElementById('userContact').value = "";
-            document.getElementById('inquiryMsg').value = "";
+            document.getElementById('userContact').value = ""; document.getElementById('inquiryMsg').value = "";
         };
 
         onSnapshot(collection(db, "team"), (s) => {
@@ -85,7 +81,7 @@
                 teamData[d.id] = t;
                 display.innerHTML += `
                     <div class="team-card">
-                        <img src="${t.avatar || 'https://via.placeholder.com/60'}" class="team-avatar">
+                        <img src="${t.avatar}" class="team-avatar">
                         <div class="team-info">
                             <h4>${t.name}</h4>
                             <span class="role-badge">${t.role}</span>
@@ -103,26 +99,32 @@
                 s.forEach((d) => {
                     const b = d.data();
                     u += parseInt(b.users || 0); ser += parseInt(b.servers || 0);
-                    const langImg = b.language === "Python" ? 
-                        "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" : 
-                        "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg";
+                    const langImg = b.language === "Python" ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" : "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg";
+                    
+                    let avatars = "";
+                    if (b.contributors) {
+                        b.contributors.forEach(mid => {
+                            if (teamData[mid]) avatars += `<img src="${teamData[mid].avatar}" class="mini-avatar" title="${teamData[mid].name}">`;
+                        });
+                    }
 
                     display.innerHTML += `
                         <div class="bot-card">
                             <div class="bot-card-top">
-                                <div class="lang-tag"><img src="${langImg}" class="mini-icon"> ${b.language || 'JS'}</div>
+                                <div class="lang-tag"><img src="${langImg}" class="mini-icon"> ${b.language}</div>
                                 <div class="status-pill" style="color: ${b.status === 'Online' ? '#43b581' : '#faa61a'}">
                                     <span class="dot" style="background: currentColor"></span> ${b.status}
                                 </div>
                             </div>
                             <div class="bot-header">
-                                <img src="${b.avatar || 'https://via.placeholder.com/60'}" class="bot-pfp">
+                                <img src="${b.avatar}" class="bot-pfp">
                                 <div class="bot-identity">
                                     <div class="bot-tag">@${b.username}</div>
                                     <h3>${b.name}</h3>
                                 </div>
                             </div>
                             <p class="bot-description">${b.desc}</p>
+                            <div class="contributor-list">${avatars}</div>
                             <div class="bot-stats-row">
                                 <span>📊 ${b.servers} Servers</span>
                                 <span>👥 ${b.users} Users</span>
