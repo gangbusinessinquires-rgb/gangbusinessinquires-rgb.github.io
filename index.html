@@ -3,19 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord Bot Portfolio</title>
+    <title>Dev Portfolio</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+    <nav>
+        <div class="logo" style="font-weight: bold; font-size: 1.2rem;">PORTFOLIO</div>
+        <a href="admin.html" class="login-btn">Admin Login</a>
+    </nav>
+
     <div class="hero">
-        <h1>Bot Developer Portfolio</h1>
-        <p>Real-time projects powered by Firebase.</p>
+        <div class="tech-stack">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" alt="Java">
+        </div>
+        <h1>Developer Profile</h1>
+        <p style="color: var(--text-muted); font-size: 1.2rem;">Multi-language automation and bot specialist.</p>
     </div>
 
     <div class="container">
         <div id="bot-display" class="grid">
-            <p>Loading projects...</p>
-        </div>
+            </div>
     </div>
 
     <script type="module">
@@ -28,27 +37,22 @@
             projectId: "portfolio-a8de0",
             storageBucket: "portfolio-a8de0.firebasestorage.app",
             messagingSenderId: "352813143804",
-            appId: "1:352813143804:web:9ab1d0f59f38d0b519e979",
-            measurementId: "G-PG4QH8PRHE"
+            appId: "1:352813143804:web:9ab1d0f59f38d0b519e979"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const botDisplay = document.getElementById('bot-display');
 
         onSnapshot(collection(db, "bots"), (snapshot) => {
-            botDisplay.innerHTML = ""; 
-            if (snapshot.empty) {
-                botDisplay.innerHTML = "<p>No bots added yet. Visit admin.html to add one!</p>";
-                return;
-            }
+            const display = document.getElementById('bot-display');
+            display.innerHTML = "";
             snapshot.forEach((doc) => {
                 const bot = doc.data();
-                botDisplay.innerHTML += `
+                display.innerHTML += `
                     <div class="bot-card">
                         <h3>${bot.name}</h3>
                         <p>${bot.desc}</p>
-                        <a href="${bot.invite}" target="_blank" class="btn">Add to Server</a>
+                        <a href="${bot.invite}" target="_blank" class="play-btn">Invite Bot</a>
                     </div>
                 `;
             });
