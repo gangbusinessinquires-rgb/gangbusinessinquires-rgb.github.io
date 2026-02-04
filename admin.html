@@ -2,154 +2,37 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Console Logic | Admin</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Architect Console</title>
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-
-    <nav>
-        <div class="container" style="display:flex; justify-content:space-between; align-items:center;">
-            <div class="logo">Console<span>.logic</span></div>
-            <button class="mini-btn btn-del" style="padding:10px 20px;">Terminate Session</button>
-        </div>
-    </nav>
-
-    <div class="container">
-        <div class="card">
-            <div class="card-title">🤖 Bot Architect</div>
-            <p style="color:var(--text-dim); margin-bottom:20px; font-size:0.9rem;">Deploy new application instances to the public registry.</p>
-            
-            <input type="hidden" id="botId">
-            <div class="input-group"><input type="text" id="botName" class="input-field" placeholder="Bread Blacklist Bot"></div>
-            <div class="input-group"><input type="text" id="botDesc" class="input-field" placeholder="Short description..."></div>
-            <div class="input-group"><input type="number" id="botUsers" class="input-field" placeholder="User Count"></div>
-            <div class="input-group"><input type="number" id="botServers" class="input-field" placeholder="Guild Count"></div>
-            <div class="input-group"><input type="text" id="botImg" class="input-field" placeholder="Asset Image URL"></div>
-            <div class="input-group"><input type="text" id="botLink" class="input-field" placeholder="Invite Link"></div>
-            
-            <button id="saveBot" class="primary-btn">Publish Configuration</button>
-        </div>
-
-        <div class="card">
-            <div class="card-title">👥 Personnel Sync</div>
-            <p style="color:var(--text-dim); margin-bottom:20px; font-size:0.9rem;">Manage contributor profiles and organizational roles.</p>
-            
-            <input type="hidden" id="staffId">
-            <div class="input-group"><input type="text" id="staffName" class="input-field" placeholder="Full Name / Alias"></div>
-            <div class="input-group"><input type="text" id="staffRole" class="input-field" placeholder="Designated Role"></div>
-            <div class="input-group"><input type="text" id="staffImg" class="input-field" placeholder="Profile Image URL"></div>
-            
-            <button id="saveStaff" class="primary-btn">Update Personnel</button>
-        </div>
-
-        <div class="card">
-            <div class="card-title">🛠️ Data Registry</div>
-            <div class="registry-grid">
-                <div class="registry-column">
-                    <h3>Active Bots</h3>
-                    <div id="botList"></div>
-                </div>
-                <div class="registry-column">
-                    <h3>Personnel</h3>
-                    <div id="staffList"></div>
-                </div>
-            </div>
+    <div class="container" style="padding-top: 100px;">
+        <div class="card-frame" style="max-width: 500px; margin: 0 auto;">
+            <h2>Deploy_System</h2>
+            <input type="text" id="name" class="input-field" placeholder="Name" style="margin-top:20px;">
+            <input type="text" id="desc" class="input-field" placeholder="Description" style="margin-top:15px;">
+            <input type="number" id="users" class="input-field" placeholder="Users" style="margin-top:15px;">
+            <input type="number" id="servers" class="input-field" placeholder="Servers" style="margin-top:15px;">
+            <input type="text" id="avatar" class="input-field" placeholder="Avatar URL" style="margin-top:15px;">
+            <input type="text" id="invite" class="input-field" placeholder="Invite Link" style="margin-top:15px;">
+            <button id="btn" class="primary-btn" style="margin-top:20px;">INITIALIZE</button>
         </div>
     </div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-        const firebaseConfig = { projectId: "portfolio-a8de0", appId: "1:352813143804:web:9ab1d0f59f38d0b519e979" };
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        // --- BOT LOGIC ---
-        const botBtn = document.getElementById('saveBot');
-        botBtn.onclick = async () => {
-            const id = document.getElementById('botId').value;
-            const data = {
-                name: document.getElementById('botName').value,
-                desc: document.getElementById('botDesc').value,
-                users: document.getElementById('botUsers').value,
-                servers: document.getElementById('botServers').value,
-                img: document.getElementById('botImg').value,
-                link: document.getElementById('botLink').value
-            };
-            id ? await updateDoc(doc(db, "bots", id), data) : await addDoc(collection(db, "bots"), data);
-            location.reload();
-        };
-
-        window.editBot = async (id) => {
-            const s = await getDoc(doc(db, "bots", id));
-            const b = s.data();
-            document.getElementById('botId').value = id;
-            document.getElementById('botName').value = b.name;
-            document.getElementById('botDesc').value = b.desc;
-            document.getElementById('botUsers').value = b.users;
-            document.getElementById('botServers').value = b.servers;
-            document.getElementById('botImg').value = b.img;
-            document.getElementById('botLink').value = b.link;
-            botBtn.innerText = "Commit Changes";
-        };
-
-        // --- PERSONNEL LOGIC ---
-        const staffBtn = document.getElementById('saveStaff');
-        staffBtn.onclick = async () => {
-            const id = document.getElementById('staffId').value;
-            const data = {
-                name: document.getElementById('staffName').value,
-                role: document.getElementById('staffRole').value,
-                img: document.getElementById('staffImg').value
-            };
-            id ? await updateDoc(doc(db, "staff", id), data) : await addDoc(collection(db, "staff"), data);
-            location.reload();
-        };
-
-        window.editStaff = async (id) => {
-            const s = await getDoc(doc(db, "staff", id));
-            const st = s.data();
-            document.getElementById('staffId').value = id;
-            document.getElementById('staffName').value = st.name;
-            document.getElementById('staffRole').value = st.role;
-            document.getElementById('staffImg').value = st.img;
-            staffBtn.innerText = "Commit Changes";
-        };
-
-        // --- REAL-TIME REGISTRY ---
-        onSnapshot(collection(db, "bots"), s => {
-            const list = document.getElementById('botList');
-            list.innerHTML = "";
-            s.forEach(d => {
-                const b = d.data();
-                list.innerHTML += `
-                <div class="registry-item">
-                    <div class="item-name">${b.name}</div>
-                    <div class="action-stack">
-                        <button class="mini-btn btn-edit" onclick="editBot('${d.id}')">Edit</button>
-                        <button class="mini-btn btn-del" onclick="deleteDoc(doc(db, 'bots', '${d.id}'))">Del</button>
-                    </div>
-                </div>`;
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        const db = getFirestore(initializeApp({ projectId: "portfolio-a8de0" }));
+        document.getElementById('btn').onclick = async () => {
+            await addDoc(collection(db, "bots"), {
+                name: document.getElementById('name').value,
+                desc: document.getElementById('desc').value,
+                users: document.getElementById('users').value,
+                servers: document.getElementById('servers').value,
+                avatar: document.getElementById('avatar').value,
+                invite: document.getElementById('invite').value
             });
-        });
-
-        onSnapshot(collection(db, "staff"), s => {
-            const list = document.getElementById('staffList');
-            list.innerHTML = "";
-            s.forEach(d => {
-                const st = d.data();
-                list.innerHTML += `
-                <div class="registry-item">
-                    <div class="item-name">${st.name}</div>
-                    <div class="action-stack">
-                        <button class="mini-btn btn-edit" onclick="editStaff('${d.id}')">Edit</button>
-                        <button class="mini-btn btn-del" onclick="deleteDoc(doc(db, 'staff', '${d.id}'))">Del</button>
-                    </div>
-                </div>`;
-            });
-        });
+            alert("SYSTEM_DEPLOYED"); location.reload();
+        };
     </script>
 </body>
 </html>
