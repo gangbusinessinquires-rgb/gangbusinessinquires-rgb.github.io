@@ -3,72 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff Portfolio</title>
+    <title>Staff Portfolio | Mastering Logic</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <nav><div class="logo">STAFF<span>PORTFOLIO</span></div><a href="index.html" class="login-btn">Back Home</a></nav>
-    <div class="hero">
-        <img id="staff-avatar" src="" class="team-avatar" style="width:100px; height:100px; border-width:4px;">
-        <h1 id="staff-name">Loading...</h1>
-        <p id="staff-role" style="color:var(--accent); font-weight:bold;"></p>
+
+    <div id="loader" style="height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; background:#000;">
+        <h1 style="font-size:4rem; font-weight:900;">Loading...</h1>
+        <p style="color:var(--accent-blue); font-family:'JetBrains Mono';">CONNECTING_TO_NODES</p>
     </div>
-    <div class="container">
-        <h2 class="section-title">Project Contributions</h2>
-        <div id="staff-projects" class="grid"></div>
+
+    <div id="content" style="display:none;">
+        <nav>
+            <div class="container" style="display:flex; justify-content:space-between;">
+                <div class="logo">STAFF<span>PORTFOLIO</span></div>
+                <a href="index.html" style="color:var(--accent-blue); text-decoration:none; font-weight:700;">Back Home</a>
+            </div>
+        </nav>
+
+        <div class="container">
+            <div id="staffHeader" style="text-align:center; margin-bottom:80px;">
+                </div>
+
+            <h2 style="margin-bottom:40px; font-size:2rem;">Project Contributions</h2>
+            <div id="projectGrid" class="bot-display-grid">
+                </div>
+        </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, query, where, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBxZOiNLQixhfEK5_U-yf1wDi7f1oyM9NQ",
-            authDomain: "portfolio-a8de0.firebaseapp.com",
-            projectId: "portfolio-a8de0",
-            storageBucket: "portfolio-a8de0.firebasestorage.app",
-            messagingSenderId: "352813143804",
-            appId: "1:352813143804:web:9ab1d0f59f38d0b519e979"
-        };
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        const firebaseConfig = { projectId: "portfolio-a8de0", appId: "1:352813143804:web:9ab1d0f59f38d0b519e979" };
+        const db = getFirestore(initializeApp(firebaseConfig));
 
         const urlParams = new URLSearchParams(window.location.search);
-        const userSlug = urlParams.get('user');
+        const staffId = urlParams.get('id');
 
         async function init() {
-            const teamSnap = await getDocs(collection(db, "team"));
-            let staffData = null;
-            teamSnap.forEach(doc => {
-                if(doc.data().name.substring(0,3).toLowerCase() === userSlug) staffData = doc.data();
-            });
+            if(!staffId) { window.location.href = "index.html"; return; }
 
-            if(staffData) {
-                document.getElementById('staff-name').innerText = staffData.name;
-                document.getElementById('staff-role').innerText = staffData.role;
-                document.getElementById('staff-avatar').src = staffData.avatar;
-                loadStaffProjects(staffData.name);
-            }
-        }
+            const snap = await getDoc(doc(db, "staff", staffId));
+            if(!snap.exists()) return;
+            const s = snap.data();
 
-        function loadStaffProjects(name) {
-            onSnapshot(collection(db, "bots"), (s) => {
-                const display = document.getElementById('staff-projects');
-                display.innerHTML = "";
-                s.forEach(d => {
+            document.getElementById('staffHeader').innerHTML = `
+                <img src="${s.img}" style="width:180px; height:180px; border-radius:50%; border:4px solid var(--accent-blue); margin-bottom:20px; object-fit:cover;">
+                <h1 style="font-size:3rem;">${s.name}</h1>
+                <p style="color:var(--accent-blue); font-weight:800; font-size:1.2rem; text-transform:uppercase;">${s.role}</p>
+            `;
+
+            onSnapshot(collection(db, "bots"), snap => {
+                const grid = document.getElementById('projectGrid');
+                grid.innerHTML = "";
+                snap.forEach(d => {
                     const b = d.data();
-                    if(b.contributors && b.contributors.includes(name)) {
-                        display.innerHTML += `
-                            <div class="bot-card">
-                                <div class="bot-header">
-                                    <img src="${b.avatar}" class="bot-pfp">
-                                    <div class="bot-identity"><h3>${b.name}</h3></div>
-                                </div>
-                                <p class="bot-description">${b.desc}</p>
-                                <a href="${b.invite}" class="play-btn">Join Server</a>
-                            </div>`;
-                    }
+                    // Relational check: Does this bot have this staff member as a contributor?
+                    // Note: You can add an 'author' field to your bot architect to link them.
+                    grid.innerHTML += `
+                        <div class="bot-card">
+                            <img src="${b.img}" class="bot-img">
+                            <div class="bot-info">
+                                <div class="bot-name">${b.name}</div>
+                                <div class="bot-desc">${b.desc}</div>
+                                <a href="${b.link}" class="primary-btn" style="display:block; text-decoration:none; text-align:center;">View Architecture</a>
+                            </div>
+                        </div>`;
                 });
+                
+                // Final Reveal
+                document.getElementById('loader').style.display = "none";
+                document.getElementById('content').style.display = "block";
             });
         }
         init();
