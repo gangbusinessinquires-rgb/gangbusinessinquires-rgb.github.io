@@ -2,15 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Portal</title>
+    <title>Admin Portal | Manager</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        .admin-section { background: rgba(255,255,255,0.03); padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px; }
-        input, select, textarea { width: 100%; background: #000; color: white; border: 1px solid #333; padding: 15px; border-radius: 12px; margin-bottom: 15px; box-sizing: border-box; }
-        .submit-btn { background: var(--accent); color: white; border: none; padding: 18px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; }
-        .delete-list-item { background: #111; padding: 15px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #222; }
-        .del-btn { background: #ff4757; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
-    </style>
 </head>
 <body>
     <div id="login-section" class="container" style="max-width: 450px; margin-top: 100px; text-align: center;">
@@ -20,55 +13,50 @@
         <button onclick="handleLogin()" class="submit-btn">Unlock Portal</button>
     </div>
 
-    <div id="dashboard" class="container" style="display:none; max-width: 800px;">
-        <h1 style="text-align: center; margin-bottom: 40px;">Control Center</h1>
+    <div id="dashboard" class="container" style="display:none; max-width: 800px; margin-top: 50px;">
+        <h1 style="text-align: center;">Control Center</h1>
 
         <div class="admin-section">
-            <h3>🚀 Add New Project</h3>
+            <h3 id="bot-form-title">🚀 Project Editor</h3>
+            <input type="hidden" id="edit-bot-id">
+            <input type="text" id="botName" placeholder="Bot Name">
+            <input type="text" id="botUser" placeholder="Username (@...)">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <input type="text" id="botName" placeholder="Bot Name">
-                <input type="text" id="botUser" placeholder="Username (@...)">
+                <input type="number" id="botServers" placeholder="Servers">
+                <input type="number" id="botUsers" placeholder="Users">
             </div>
-            <input type="number" id="botServers" placeholder="Servers">
-            <input type="number" id="botUsers" placeholder="Users">
-            <select id="botStatus">
-                <option value="Online">🟢 Online</option>
-                <option value="Maintenance">🟡 Maintenance</option>
-            </select>
+            <select id="botStatus"><option value="Online">Online</option><option value="Maintenance">Maintenance</option></select>
+            
+            <label style="color:#888; font-size: 13px;">Assign Contributors (Hold Ctrl/Cmd to select multiple)</label>
+            <select id="botContributors" multiple style="height: 100px; margin-top:5px;"></select>
+            
             <textarea id="botDesc" placeholder="Description..."></textarea>
-            <input type="text" id="botInvite" placeholder="Invite Link URL">
-            <button onclick="saveBot()" class="submit-btn">Publish Project</button>
+            <input type="text" id="botInvite" placeholder="Invite URL">
+            <button onclick="saveBot()" class="submit-btn">Save Project</button>
         </div>
 
         <div class="admin-section">
-            <h3>👥 Add Team Member</h3>
-            <input type="text" id="tName" placeholder="Full Name">
-            <input type="text" id="tRole" placeholder="Role (e.g. Lead Python Dev)">
-            <input type="text" id="tAvatar" placeholder="Profile Picture URL">
-            <button onclick="saveMember()" class="submit-btn" style="background:#4e5058">Add Member</button>
+            <h3 id="team-form-title">👥 Team Editor</h3>
+            <input type="hidden" id="edit-team-id">
+            <input type="text" id="tName" placeholder="Name">
+            <input type="text" id="tRole" placeholder="Role">
+            <input type="text" id="tAvatar" placeholder="Avatar URL">
+            <button onclick="saveMember()" class="submit-btn" style="background:#4e5058">Save Member</button>
         </div>
 
         <div class="admin-section">
             <h3>🛠️ Manage Entries</h3>
-            <div id="manage-bots"><h4>Bots</h4></div>
-            <div id="manage-team" style="margin-top: 20px;"><h4>Team</h4></div>
+            <div id="manage-bots"></div>
+            <div id="manage-team" style="margin-top:20px;"></div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBxZOiNLQixhfEK5_U-yf1wDi7f1oyM9NQ",
-            authDomain: "portfolio-a8de0.firebaseapp.com",
-            projectId: "portfolio-a8de0",
-            storageBucket: "portfolio-a8de0.firebasestorage.app",
-            messagingSenderId: "352813143804",
-            appId: "1:352813143804:web:9ab1d0f59f38d0b519e979"
-        };
-
+        const firebaseConfig = { /* PASTE CONFIG HERE */ };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
@@ -78,52 +66,55 @@
                 await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
                 document.getElementById('login-section').style.display = 'none';
                 document.getElementById('dashboard').style.display = 'block';
-                loadManagement();
+                loadLists();
             } catch (e) { alert(e.message); }
         };
 
         window.saveBot = async () => {
-            await addDoc(collection(db, "bots"), {
+            const id = document.getElementById('edit-bot-id').value;
+            const selectedMembers = Array.from(document.getElementById('botContributors').selectedOptions).map(o => o.value);
+            const data = {
                 name: document.getElementById('botName').value,
                 username: document.getElementById('botUser').value,
                 servers: document.getElementById('botServers').value,
                 users: document.getElementById('botUsers').value,
                 status: document.getElementById('botStatus').value,
                 desc: document.getElementById('botDesc').value,
-                invite: document.getElementById('botInvite').value
-            });
-            alert("Bot Published!");
+                invite: document.getElementById('botInvite').value,
+                contributors: selectedMembers
+            };
+            id ? await updateDoc(doc(db, "bots", id), data) : await addDoc(collection(db, "bots"), data);
+            location.reload();
         };
 
         window.saveMember = async () => {
-            await addDoc(collection(db, "team"), {
-                name: document.getElementById('tName').value,
-                role: document.getElementById('tRole').value,
-                avatar: document.getElementById('tAvatar').value
-            });
-            alert("Member Added!");
+            const id = document.getElementById('edit-team-id').value;
+            const data = { name: document.getElementById('tName').value, role: document.getElementById('tRole').value, avatar: document.getElementById('tAvatar').value };
+            id ? await updateDoc(doc(db, "team", id), data) : await addDoc(collection(db, "team"), data);
+            location.reload();
         };
 
-        function loadManagement() {
+        function loadLists() {
+            onSnapshot(collection(db, "team"), s => {
+                const select = document.getElementById('botContributors');
+                const tDiv = document.getElementById('manage-team');
+                select.innerHTML = ""; tDiv.innerHTML = "<h4>Team</h4>";
+                s.forEach(d => {
+                    const t = d.data();
+                    select.innerHTML += `<option value="${d.id}">${t.name}</option>`;
+                    tDiv.innerHTML += `<div class="manage-card"><span>${t.name}</span><button onclick="prepEditTeam('${d.id}','${t.name}','${t.role}','${t.avatar}')">Edit</button><button onclick="deleteItem('team','${d.id}')">Del</button></div>`;
+                });
+            });
             onSnapshot(collection(db, "bots"), s => {
                 const bDiv = document.getElementById('manage-bots');
                 bDiv.innerHTML = "<h4>Bots</h4>";
                 s.forEach(d => {
-                    bDiv.innerHTML += `<div class="delete-list-item"><span>${d.data().name}</span><button class="del-btn" onclick="deleteItem('bots','${d.id}')">Delete</button></div>`;
-                });
-            });
-            onSnapshot(collection(db, "team"), s => {
-                const tDiv = document.getElementById('manage-team');
-                tDiv.innerHTML = "<h4>Team</h4>";
-                s.forEach(d => {
-                    tDiv.innerHTML += `<div class="delete-list-item"><span>${d.data().name}</span><button class="del-btn" onclick="deleteItem('team','${d.id}')">Delete</button></div>`;
+                    const b = d.data();
+                    bDiv.innerHTML += `<div class="manage-card"><span>${b.name}</span><button onclick="deleteItem('bots','${d.id}')">Del</button></div>`;
                 });
             });
         }
-
-        window.deleteItem = async (col, id) => {
-            if(confirm("Are you sure?")) await deleteDoc(doc(db, col, id));
-        };
+        window.deleteItem = async (c, i) => { if(confirm("Delete?")) await deleteDoc(doc(db, c, i)); };
     </script>
 </body>
 </html>
