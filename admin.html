@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Portal | Manager</title>
+    <title>Admin Portal</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="login-section" class="container" style="max-width: 400px; margin-top: 100px; text-align: center;">
-        <h2>System Login</h2>
-        <input type="email" id="email" placeholder="Admin Email" style="width:100%; padding:15px; margin-bottom:10px; background:#000; color:#fff; border:1px solid #333; border-radius:10px;">
-        <input type="password" id="password" placeholder="Password" style="width:100%; padding:15px; margin-bottom:10px; background:#000; color:#fff; border:1px solid #333; border-radius:10px;">
+    <div id="login-section" class="container" style="max-width: 400px; margin-top: 100px;">
+        <h2 style="text-align:center">System Login</h2>
+        <input type="email" id="email" placeholder="Admin Email" class="admin-input">
+        <input type="password" id="password" placeholder="Password" class="admin-input">
         <button onclick="handleLogin()" class="play-btn" style="width:100%">Unlock Dashboard</button>
     </div>
 
@@ -18,44 +18,47 @@
         <h1 style="text-align: center;">Control Center</h1>
 
         <div class="admin-section">
-            <h3>⚙️ Global Settings</h3>
-            <label style="color:#888;">Commission Status</label>
-            <select id="commStatus" style="width:100%; padding:10px; background:#000; color:#fff; border:1px solid #333; margin-bottom:10px;">
-                <option value="true">Open</option>
-                <option value="false">Closed</option>
-            </select>
-            <button onclick="updateCommissions()" class="play-btn" style="width:100%; background:#2ecc71">Update Status</button>
-        </div>
-
-        <div class="admin-section" style="margin-top:20px;">
             <h3>🚀 Project Editor</h3>
             <input type="hidden" id="edit-bot-id">
-            <input type="text" id="botName" placeholder="Bot Name">
-            <input type="text" id="botUser" placeholder="Username (@...)">
-            <input type="text" id="botAvatar" placeholder="Avatar URL">
-            <input type="number" id="botServers" placeholder="Servers">
-            <input type="number" id="botUsers" placeholder="Users">
-            
-            <label style="color:#888; font-size:12px;">Assign Team Members (Hold Ctrl/Cmd)</label>
-            <select id="teamMemberSelect" multiple style="width:100%; height:100px; background:#000; color:#fff; border:1px solid #333; margin-bottom:10px;"></select>
-
-            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
-                <input type="checkbox" id="botPinned" style="width:auto;"> <label>Pin Project to Top</label>
+            <input type="text" id="botName" placeholder="Bot Name" class="admin-input">
+            <input type="text" id="botUser" placeholder="Username (@...)" class="admin-input">
+            <input type="text" id="botAvatar" placeholder="Avatar URL" class="admin-input">
+            <div style="display:flex; gap:10px;">
+                <input type="number" id="botServers" placeholder="Servers" class="admin-input">
+                <input type="number" id="botUsers" placeholder="Users" class="admin-input">
             </div>
-            <select id="botStatus"><option value="Online">Online</option><option value="Maintenance">Maintenance</option></select>
-            <select id="botLanguage"><option value="JavaScript">JavaScript</option><option value="Python">Python</option></select>
-            <textarea id="botDesc" placeholder="Description..."></textarea>
-            <input type="text" id="botInvite" placeholder="Server Invite Link">
-            <button onclick="saveBot()" class="play-btn" style="width:100%">Save Project</button>
+            <select id="teamMemberSelect" multiple class="admin-input" style="height:100px;"></select>
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                <input type="checkbox" id="botPinned"> <label>Pin to Top</label>
+            </div>
+            <textarea id="botDesc" placeholder="Description..." class="admin-input"></textarea>
+            <input type="text" id="botInvite" placeholder="Invite Link" class="admin-input">
+            <button onclick="saveBot()" class="play-btn" style="width:100%">Publish Project</button>
         </div>
 
-        <div id="manage-bots" style="margin-top:20px;"></div>
+        <div class="admin-section">
+            <h3>👥 Team Editor</h3>
+            <input type="hidden" id="edit-team-id">
+            <input type="text" id="tName" placeholder="Full Name" class="admin-input">
+            <input type="text" id="tRole" placeholder="Role" class="admin-input">
+            <input type="text" id="tAvatar" placeholder="Avatar URL" class="admin-input">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button onclick="saveMember()" class="play-btn" style="background:#4e5058">Save Member</button>
+                <button onclick="createStaffPortfolio()" class="play-btn" style="background:var(--accent)">Create Portfolio</button>
+            </div>
+        </div>
+
+        <div class="admin-section">
+            <h3>🛠️ Manage Entries</h3>
+            <div id="manage-bots-list"></div>
+            <div id="manage-team-list" style="margin-top:20px;"></div>
+        </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBxZOiNLQixhfEK5_U-yf1wDi7f1oyM9NQ",
@@ -65,72 +68,86 @@
             messagingSenderId: "352813143804",
             appId: "1:352813143804:web:9ab1d0f59f38d0b519e979"
         };
-
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
         window.handleLogin = async () => {
-            try { await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } catch(e) { alert(e.message); }
-        };
-
-        window.updateCommissions = async () => {
-            const isOpen = document.getElementById('commStatus').value === "true";
-            await setDoc(doc(db, "settings", "commissions"), { open: isOpen });
-            alert("Status Updated!");
+            const e = document.getElementById('email').value;
+            const p = document.getElementById('password').value;
+            try { await signInWithEmailAndPassword(auth, e, p); } catch(err) { alert(err.message); }
         };
 
         onAuthStateChanged(auth, (u) => { if(u){ document.getElementById('login-section').style.display='none'; document.getElementById('dashboard').style.display='block'; loadData(); } });
 
         window.saveBot = async () => {
             const id = document.getElementById('edit-bot-id').value;
-            const selectBox = document.getElementById('teamMemberSelect');
-            const selectedMembers = Array.from(selectBox.selectedOptions).map(o => o.value);
-
+            const members = Array.from(document.getElementById('teamMemberSelect').selectedOptions).map(o => o.value);
             const data = {
-                name: document.getElementById('botName').value,
-                username: document.getElementById('botUser').value,
-                avatar: document.getElementById('botAvatar').value,
-                servers: document.getElementById('botServers').value,
-                users: document.getElementById('botUsers').value,
-                status: document.getElementById('botStatus').value,
-                language: document.getElementById('botLanguage').value,
-                desc: document.getElementById('botDesc').value,
-                invite: document.getElementById('botInvite').value,
-                pinned: document.getElementById('botPinned').checked,
-                contributors: selectedMembers
+                name: document.getElementById('botName').value, username: document.getElementById('botUser').value,
+                avatar: document.getElementById('botAvatar').value, servers: document.getElementById('botServers').value,
+                users: document.getElementById('botUsers').value, desc: document.getElementById('botDesc').value,
+                invite: document.getElementById('botInvite').value, pinned: document.getElementById('botPinned').checked,
+                contributors: members, status: "Online", language: "JavaScript"
             };
             id ? await updateDoc(doc(db, "bots", id), data) : await addDoc(collection(db, "bots"), data);
             location.reload();
         };
 
+        window.saveMember = async () => {
+            const id = document.getElementById('edit-team-id').value;
+            const data = { name: document.getElementById('tName').value, role: document.getElementById('tRole').value, avatar: document.getElementById('tAvatar').value };
+            id ? await updateDoc(doc(db, "team", id), data) : await addDoc(collection(db, "team"), data);
+            location.reload();
+        };
+
+        window.createStaffPortfolio = async () => {
+            const id = document.getElementById('edit-team-id').value;
+            if(!id) return alert("Select a member first!");
+            await updateDoc(doc(db, "team", id), { hasPortfolio: true });
+            alert("Portfolio Link Created!");
+        };
+
         function loadData() {
             onSnapshot(collection(db, "bots"), (s) => {
-                const bList = document.getElementById('manage-bots');
-                bList.innerHTML = "<h3>Bots</h3>";
+                const list = document.getElementById('manage-bots-list');
+                list.innerHTML = "<h4>Bots</h4>";
                 s.forEach(d => {
                     const b = d.data();
-                    bList.innerHTML += `<div style="display:flex; justify-content:space-between; background:#111; padding:10px; border-radius:8px; margin-bottom:5px;">
-                        <span>${b.name} ${b.pinned ? '📌' : ''}</span>
-                        <button onclick="deleteItem('bots','${d.id}')" style="color:#ff4757; background:none; border:none; cursor:pointer;">Delete</button>
-                    </div>`;
+                    list.innerHTML += `<div class="manage-item"><span>${b.name}</span><div class="manage-btns"><button class="edit-btn" onclick="editBot('${d.id}')">Edit</button><button class="del-btn" onclick="deleteItem('bots','${d.id}')">Del</button></div></div>`;
                 });
             });
-
             onSnapshot(collection(db, "team"), (s) => {
-                const selectBox = document.getElementById('teamMemberSelect');
-                selectBox.innerHTML = "";
+                const list = document.getElementById('manage-team-list');
+                const select = document.getElementById('teamMemberSelect');
+                list.innerHTML = "<h4>Team</h4>"; select.innerHTML = "";
                 s.forEach(d => {
                     const t = d.data();
-                    const opt = document.createElement('option');
-                    opt.value = t.name;
-                    opt.text = t.name;
-                    selectBox.appendChild(opt);
+                    list.innerHTML += `<div class="manage-item"><span>${t.name}</span><div class="manage-btns"><button class="edit-btn" onclick="editTeam('${d.id}')">Edit</button><button class="del-btn" onclick="deleteItem('team','${d.id}')">Del</button></div></div>`;
+                    const opt = document.createElement('option'); opt.value = t.name; opt.text = t.name; select.appendChild(opt);
                 });
             });
         }
 
-        window.deleteItem = async (col, id) => { if(confirm("Confirm?")) await deleteDoc(doc(db, col, id)); };
+        window.editBot = async (id) => {
+            const d = await getDoc(doc(db, "bots", id)); const b = d.data();
+            document.getElementById('edit-bot-id').value = id;
+            document.getElementById('botName').value = b.name; document.getElementById('botUser').value = b.username;
+            document.getElementById('botAvatar').value = b.avatar; document.getElementById('botServers').value = b.servers;
+            document.getElementById('botUsers').value = b.users; document.getElementById('botDesc').value = b.desc;
+            document.getElementById('botInvite').value = b.invite; document.getElementById('botPinned').checked = b.pinned;
+            window.scrollTo(0,0);
+        };
+
+        window.editTeam = async (id) => {
+            const d = await getDoc(doc(db, "team", id)); const t = d.data();
+            document.getElementById('edit-team-id').value = id;
+            document.getElementById('tName').value = t.name; document.getElementById('tRole').value = t.role;
+            document.getElementById('tAvatar').value = t.avatar;
+            window.scrollTo(0,0);
+        };
+
+        window.deleteItem = async (col, id) => { if(confirm("Delete?")) await deleteDoc(doc(db, col, id)); };
     </script>
 </body>
 </html>
