@@ -1,21 +1,9 @@
 {
   "cleanUrls": true,
   "rewrites": [
-    { 
-      "source": "/admin", 
-      "destination": "/admin.html" 
-    },
-    { 
-      "source": "/index", 
-      "destination": "/index.html" 
-    },
-    { 
-      "source": "/staff", 
-      "destination": "/staff.html" 
-    },
-    { 
-      "source": "/:user((?!admin|index|staff|style).*)", 
-      "destination": "/staff.html?user=:user" 
-    }
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/index", "destination": "/index.html" },
+    { "source": "/staff", "destination": "/staff.html" },
+    { "source": "/:user((?!admin|index|staff|style|favicon).*)", "destination": "/staff.html?user=:user" }
   ]
 }
