@@ -34,11 +34,24 @@
             <input type="hidden" id="edit-bot-id">
             <input type="text" id="botName" placeholder="Bot Display Name">
             <input type="text" id="botUser" placeholder="Bot Username (@...)">
+            <input type="text" id="botAvatar" placeholder="Bot Avatar URL (Discord link, Imgur, etc.)">
+            
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                 <input type="number" id="botServers" placeholder="Servers">
                 <input type="number" id="botUsers" placeholder="Users">
             </div>
-            <select id="botStatus"><option value="Online">🟢 Online</option><option value="Maintenance">🟡 Maintenance</option></select>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <label>Bot Status</label>
+                    <select id="botStatus"><option value="Online">🟢 Online</option><option value="Maintenance">🟡 Maintenance</option></select>
+                </div>
+                <div>
+                    <label>Language</label>
+                    <select id="botLanguage"><option value="JavaScript">JavaScript</option><option value="Python">Python</option></select>
+                </div>
+            </div>
+
             <label>Assign Team Members (Hold Ctrl/Cmd)</label>
             <select id="botContributors" multiple style="height: 120px;"></select>
             <textarea id="botDesc" placeholder="Description..."></textarea>
@@ -96,9 +109,11 @@
             const data = {
                 name: document.getElementById('botName').value,
                 username: document.getElementById('botUser').value,
+                avatar: document.getElementById('botAvatar').value,
                 servers: document.getElementById('botServers').value,
                 users: document.getElementById('botUsers').value,
                 status: document.getElementById('botStatus').value,
+                language: document.getElementById('botLanguage').value,
                 desc: document.getElementById('botDesc').value,
                 invite: document.getElementById('botInvite').value,
                 contributors: contribs
@@ -136,20 +151,22 @@
                     const b = d.data();
                     const cStr = b.contributors ? b.contributors.join(',') : '';
                     bList.innerHTML += `<div class="manage-card"><span>${b.name}</span><div class="actions">
-                        <button class="edit-btn" onclick="prepEditBot('${d.id}','${b.name}','${b.username}','${b.servers}','${b.users}','${b.status}','${b.desc.replace(/'/g, "\\'")}','${b.invite}','${cStr}')">Edit</button>
+                        <button class="edit-btn" onclick="prepEditBot('${d.id}','${b.name}','${b.username}','${b.avatar}','${b.servers}','${b.users}','${b.status}','${b.language}','${b.desc.replace(/'/g, "\\'")}','${b.invite}','${cStr}')">Edit</button>
                         <button class="del-btn" onclick="deleteItem('bots','${d.id}')">Del</button>
                     </div></div>`;
                 });
             });
         }
 
-        window.prepEditBot = (id, n, u, s, us, st, ds, iv, co) => {
+        window.prepEditBot = (id, n, u, av, s, us, st, la, ds, iv, co) => {
             document.getElementById('edit-bot-id').value = id;
             document.getElementById('botName').value = n;
             document.getElementById('botUser').value = u;
+            document.getElementById('botAvatar').value = av || "";
             document.getElementById('botServers').value = s;
             document.getElementById('botUsers').value = us;
             document.getElementById('botStatus').value = st;
+            document.getElementById('botLanguage').value = la || "JavaScript";
             document.getElementById('botDesc').value = ds;
             document.getElementById('botInvite').value = iv;
             const sel = document.getElementById('botContributors');
