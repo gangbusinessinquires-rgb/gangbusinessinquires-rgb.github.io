@@ -5,80 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Portal | Manager</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        .admin-section { background: rgba(255,255,255,0.03); padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px; }
-        input, select, textarea { width: 100%; background: #000; color: white; border: 1px solid #333; padding: 15px; border-radius: 12px; margin-bottom: 15px; box-sizing: border-box; font-family: inherit; }
-        .submit-btn { background: var(--accent); color: white; border: none; padding: 18px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; transition: 0.3s; }
-        .manage-card { background: #111; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #222; }
-        .actions { display: flex; gap: 10px; }
-        .edit-btn { background: #f1c40f; color: black; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        .del-btn { background: #ff4757; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
-        .logout-btn { background: transparent; border: 1px solid #ff4757; color: #ff4757; padding: 5px 15px; border-radius: 8px; cursor: pointer; float: right; }
-        label { display: block; margin-bottom: 8px; color: #888; font-size: 14px; }
-    </style>
 </head>
 <body>
     <div id="login-section" class="container" style="max-width: 400px; margin-top: 100px; text-align: center;">
-        <h2 style="margin-bottom: 30px;">System Login</h2>
-        <input type="email" id="email" placeholder="Admin Email">
-        <input type="password" id="password" placeholder="Password">
-        <button onclick="handleLogin()" class="submit-btn">Unlock Dashboard</button>
+        <h2>System Login</h2>
+        <input type="email" id="email" placeholder="Admin Email" style="width:100%; padding:15px; margin-bottom:10px; background:#000; color:#fff; border:1px solid #333; border-radius:10px;">
+        <input type="password" id="password" placeholder="Password" style="width:100%; padding:15px; margin-bottom:10px; background:#000; color:#fff; border:1px solid #333; border-radius:10px;">
+        <button onclick="handleLogin()" class="play-btn" style="width:100%">Unlock Dashboard</button>
     </div>
 
-    <div id="dashboard" class="container" style="display:none; max-width: 800px; margin-top: 50px; padding-bottom: 100px;">
-        <button onclick="handleLogout()" class="logout-btn">Sign Out</button>
-        <h1 style="text-align: center; margin-bottom: 40px;">Control Center</h1>
+    <div id="dashboard" class="container" style="display:none; max-width: 800px; padding-bottom: 100px;">
+        <h1 style="text-align: center;">Control Center</h1>
 
         <div class="admin-section">
-            <h3 id="bot-title">🚀 Project Editor</h3>
+            <h3>🚀 Project Editor</h3>
             <input type="hidden" id="edit-bot-id">
             <input type="text" id="botName" placeholder="Bot Display Name">
             <input type="text" id="botUser" placeholder="Bot Username (@...)">
             <input type="text" id="botAvatar" placeholder="Bot Avatar URL">
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div style="display:flex; gap:10px;">
                 <input type="number" id="botServers" placeholder="Servers">
                 <input type="number" id="botUsers" placeholder="Users">
             </div>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <div>
-                    <label>Bot Status</label>
-                    <select id="botStatus"><option value="Online">Online</option><option value="Maintenance">Maintenance</option></select>
-                </div>
-                <div>
-                    <label>Language</label>
-                    <select id="botLanguage"><option value="JavaScript">JavaScript</option><option value="Python">Python</option></select>
-                </div>
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                <select id="botStatus"><option value="Online">Online</option><option value="Maintenance">Maintenance</option></select>
+                <select id="botLanguage"><option value="JavaScript">JavaScript</option><option value="Python">Python</option></select>
             </div>
 
-            <label>Assign Team Members (Hold Ctrl/Cmd)</label>
-            <select id="botContributors" multiple style="height: 120px;"></select>
+            <label style="font-size: 12px; color: #888;">Assign Team Members (Hold Ctrl/Cmd)</label>
+            <select id="teamMemberSelect" multiple style="height: 120px; margin-bottom: 10px;"></select>
+
             <textarea id="botDesc" placeholder="Description..."></textarea>
             <input type="text" id="botInvite" placeholder="Invite Link">
-            <button onclick="saveBot()" class="submit-btn" id="bot-btn">Publish Project</button>
-            <button onclick="location.reload()" id="bot-cancel" style="display:none; background:transparent; border:none; color:#888; margin-top:10px; cursor:pointer; width:100%;">Cancel Edit</button>
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <input type="checkbox" id="botPinned" style="width:auto;"> <label>Pin Project</label>
+            </div>
+            <button onclick="saveBot()" class="play-btn" style="width:100%">Publish Project</button>
         </div>
 
-        <div class="admin-section">
-            <h3 id="team-title">👥 Team Editor</h3>
-            <input type="hidden" id="edit-team-id">
+        <div class="admin-section" style="margin-top:20px;">
+            <h3>👥 Team Editor</h3>
             <input type="text" id="tName" placeholder="Full Name">
             <input type="text" id="tRole" placeholder="Role">
             <input type="text" id="tAvatar" placeholder="Avatar URL">
-            <button onclick="saveMember()" class="submit-btn" id="team-btn" style="background:#4e5058">Add Member</button>
+            <button onclick="saveMember()" class="play-btn" style="width:100%; background:#4e5058">Add Member</button>
         </div>
 
-        <div class="admin-section">
-            <h3>🛠️ Manage Entries</h3>
-            <div id="manage-bots"></div>
-            <div id="manage-team" style="margin-top: 30px;"></div>
-        </div>
+        <div id="manage-entries" style="margin-top:20px;"></div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -95,100 +73,62 @@
         const db = getFirestore(app);
 
         window.handleLogin = async () => {
-            try { await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } 
-            catch (e) { alert(e.message); }
+            try { await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } catch(e) { alert(e.message); }
         };
 
-        window.handleLogout = () => signOut(auth).then(() => location.reload());
+        onAuthStateChanged(auth, (u) => { 
+            if(u){ 
+                document.getElementById('login-section').style.display='none'; 
+                document.getElementById('dashboard').style.display='block'; 
+                loadAdminData(); 
+            } 
+        });
 
-        onAuthStateChanged(auth, (u) => { if (u) { document.getElementById('login-section').style.display = 'none'; document.getElementById('dashboard').style.display = 'block'; loadData(); } });
+        function loadAdminData() {
+            onSnapshot(collection(db, "team"), (s) => {
+                const selectBox = document.getElementById('teamMemberSelect');
+                selectBox.innerHTML = ""; 
+                s.forEach(d => {
+                    const t = d.data();
+                    const opt = document.createElement('option');
+                    opt.value = t.name;
+                    opt.text = t.name;
+                    selectBox.appendChild(opt);
+                });
+            });
+        }
 
         window.saveBot = async () => {
             const id = document.getElementById('edit-bot-id').value;
-            const contribs = Array.from(document.getElementById('botContributors').selectedOptions).map(o => o.value);
+            const selectBox = document.getElementById('teamMemberSelect');
+            const selectedMembers = Array.from(selectBox.selectedOptions).map(o => o.value);
+
             const data = {
                 name: document.getElementById('botName').value,
                 username: document.getElementById('botUser').value,
                 avatar: document.getElementById('botAvatar').value,
                 servers: document.getElementById('botServers').value,
                 users: document.getElementById('botUsers').value,
+                contributors: selectedMembers,
                 status: document.getElementById('botStatus').value,
                 language: document.getElementById('botLanguage').value,
                 desc: document.getElementById('botDesc').value,
                 invite: document.getElementById('botInvite').value,
-                contributors: contribs
+                pinned: document.getElementById('botPinned').checked
             };
             id ? await updateDoc(doc(db, "bots", id), data) : await addDoc(collection(db, "bots"), data);
             location.reload();
         };
 
         window.saveMember = async () => {
-            const id = document.getElementById('edit-team-id').value;
-            const data = { name: document.getElementById('tName').value, role: document.getElementById('tRole').value, avatar: document.getElementById('tAvatar').value };
-            id ? await updateDoc(doc(db, "team", id), data) : await addDoc(collection(db, "team"), data);
+            const data = { 
+                name: document.getElementById('tName').value, 
+                role: document.getElementById('tRole').value, 
+                avatar: document.getElementById('tAvatar').value 
+            };
+            await addDoc(collection(db, "team"), data);
             location.reload();
         };
-
-        function loadData() {
-            onSnapshot(collection(db, "team"), (s) => {
-                const sel = document.getElementById('botContributors');
-                const tList = document.getElementById('manage-team');
-                sel.innerHTML = ""; tList.innerHTML = "<h4>Team</h4>";
-                s.forEach(d => {
-                    const t = d.data();
-                    sel.innerHTML += `<option value="${d.id}">${t.name}</option>`;
-                    tList.innerHTML += `<div class="manage-card"><span>${t.name}</span><div class="actions">
-                        <button class="edit-btn" onclick="prepEditTeam('${d.id}','${t.name}','${t.role}','${t.avatar}')">Edit</button>
-                        <button class="del-btn" onclick="deleteItem('team','${d.id}')">Del</button>
-                    </div></div>`;
-                });
-            });
-
-            onSnapshot(collection(db, "bots"), (s) => {
-                const bList = document.getElementById('manage-bots');
-                bList.innerHTML = "<h4>Bots</h4>";
-                s.forEach(d => {
-                    const b = d.data();
-                    const cStr = b.contributors ? b.contributors.join(',') : '';
-                    bList.innerHTML += `<div class="manage-card"><span>${b.name}</span><div class="actions">
-                        <button class="edit-btn" onclick="prepEditBot('${d.id}','${b.name}','${b.username}','${b.avatar}','${b.servers}','${b.users}','${b.status}','${b.language}','${b.desc.replace(/'/g, "\\'")}','${b.invite}','${cStr}')">Edit</button>
-                        <button class="del-btn" onclick="deleteItem('bots','${d.id}')">Del</button>
-                    </div></div>`;
-                });
-            });
-        }
-
-        window.prepEditBot = (id, n, u, av, s, us, st, la, ds, iv, co) => {
-            document.getElementById('edit-bot-id').value = id;
-            document.getElementById('botName').value = n;
-            document.getElementById('botUser').value = u;
-            document.getElementById('botAvatar').value = av || "";
-            document.getElementById('botServers').value = s;
-            document.getElementById('botUsers').value = us;
-            document.getElementById('botStatus').value = st;
-            document.getElementById('botLanguage').value = la || "JavaScript";
-            document.getElementById('botDesc').value = ds;
-            document.getElementById('botInvite').value = iv;
-            const sel = document.getElementById('botContributors');
-            const cArr = co.split(',');
-            Array.from(sel.options).forEach(o => o.selected = cArr.includes(o.value));
-            document.getElementById('bot-title').innerText = "✏️ Edit Bot";
-            document.getElementById('bot-btn').innerText = "Update";
-            document.getElementById('bot-cancel').style.display = "block";
-            window.scrollTo(0,0);
-        };
-
-        window.prepEditTeam = (id, n, r, a) => {
-            document.getElementById('edit-team-id').value = id;
-            document.getElementById('tName').value = n;
-            document.getElementById('tRole').value = r;
-            document.getElementById('tAvatar').value = a;
-            document.getElementById('team-title').innerText = "✏️ Edit Team";
-            document.getElementById('team-btn').innerText = "Update";
-            window.scrollTo(0,400);
-        };
-
-        window.deleteItem = async (col, id) => { if(confirm("Delete?")) await deleteDoc(doc(db, col, id)); };
     </script>
 </body>
 </html>
