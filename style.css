@@ -3,46 +3,64 @@
     --bg-dark: #050505;
     --card-bg: #0f0f13;
     --input-bg: #000000;
+    --text-muted: #8e9297;
+    --edit-yellow: #f1c40f;
+    --del-red: #ff4757;
 }
 
 body {
-    background: var(--bg-dark);
+    background: radial-gradient(circle at 50% -20%, #1a1b3a 0%, var(--bg-dark) 80%);
     color: white;
     font-family: 'Inter', sans-serif;
     margin: 0;
+    min-height: 100vh;
 }
 
-.container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+.container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
 
-/* Grid for Bots & Team */
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 25px;
-    margin-top: 30px;
-}
-
-/* Bot Card Styling */
-.bot-card {
+.admin-card {
     background: var(--card-bg);
-    border: 1px solid #1e1e1e;
-    border-radius: 15px;
-    padding: 20px;
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 24px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
-.bot-img { width: 100%; border-radius: 10px; margin-bottom: 15px; height: 180px; object-fit: cover; }
-
-/* Yellow Edit & Red Del Buttons */
-.edit-btn { background: #f1c40f; color: black; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 800; }
-.del-btn { background: #ff4757; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 800; margin-left: 5px; }
-
-/* Input Styling */
 .admin-input {
     width: 100%;
     background: var(--input-bg);
-    border: 1px solid #1e1e1e;
-    border-radius: 10px;
+    border: 1px solid #2e2e2e;
+    border-radius: 12px;
     color: white;
-    padding: 12px;
-    margin-bottom: 10px;
+    padding: 14px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
 }
+
+.primary-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+}
+
+.manage-item {
+    background: rgba(255,255,255,0.02);
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.edit-btn { background: var(--edit-yellow); color: #000; font-weight: 800; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
+.del-btn { background: var(--del-red); color: #fff; font-weight: 800; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; }
+h1 span { color: var(--accent); }
